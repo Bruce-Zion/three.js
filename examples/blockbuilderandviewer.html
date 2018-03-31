@@ -41,6 +41,7 @@
             ////added
             var targetRotation = 0;
 			var targetRotationOnMouseDown = 0;
+            var currentRotation;
 
 			var mouseX = 0;
 			var mouseXOnMouseDown = 0;
@@ -66,7 +67,7 @@
 				info.style.top = '10px';
 				info.style.width = '100%';
 				info.style.textAlign = 'center';
-				info.innerHTML = '<strong>click</strong>: add a block, <strong>shift + click</strong>: remove a block';
+				info.innerHTML = '<strong>click</strong>: add a block, <strong>shift + click</strong>: remove a block, <strong>Drag left/right</strong>: rotate the blocks';
 				container.appendChild( info );
 
 				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -216,7 +217,7 @@
 
 				mouseX = event.clientX - windowHalfX;
 
-				targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
+				targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.001;
 
 			}
             
@@ -258,18 +259,34 @@
                             }
 
                         } else {
-
+                            
+                            ////added
+                            currentRotation = group.rotation.y;
+                            
                             var voxel = new THREE.Mesh( cubeGeometry, cubeMaterial );
+                            
+              
+                            //From current intersect.point and intersect.face.normal to get corresponding point and normal if no rotation
+                            intersect.point.rotation.y -= currentRotation;
+                            intersect.face.normal.rotation.y -= currentRotation;
+                            
+             
                             voxel.position.copy( intersect.point ).add( intersect.face.normal );
                             voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
                             
-                            ////added
-                            group.add(voxel);
-                            ////
-                            //scene.add( voxel );
-
-                            objects.push( voxel );
                             
+                            //Rotate painted voxels back, then add the new one and rotate to the current position together
+                            group.rotation.y = 0;
+                            group.add(voxel);
+
+                            group.rotation.y = currentRotation;
+                            
+                            
+                            ////deleted
+                            //scene.add( voxel );
+                            ////
+
+                            objects.push( voxel );                          
                             
                         }
 
@@ -334,20 +351,15 @@
 			function render() {
                 
                 ////added
-                var yRotation = ( targetRotation - group.rotation.y ) * 0.05;
+                var yRotation = targetRotation - group.rotation.y;
                 //gridHelper.rotation.y += yRotation;
                 ////
                 
                 ////changed
                 /*
-                for(var objectInObjects in objects){
-                    //var objectInObjects = objects[i];
-                    objectInObjects.rotation.y += yRotation;
-                }
                 for(var i=0; i<objects.length; i++){
                     if(i>0){
-                        //objects[i].rotation.y += yRotation;
-                        group.add(objects[i]);
+                        objects[i].rotation.y += yRotation;                       
                     }
                 }*/
                 
