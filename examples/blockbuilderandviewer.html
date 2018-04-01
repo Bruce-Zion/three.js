@@ -99,6 +99,7 @@
 				scene.add( plane );
 
 				objects.push( plane );
+                group.add(plane);
                 
                 ////no use?
 				//var material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
@@ -218,6 +219,8 @@
 				mouseX = event.clientX - windowHalfX;
 
 				targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.001;
+                
+                targetRotation %= (Math.PI * 2);
 
 			}
             
@@ -265,11 +268,11 @@
                             
                             var voxel = new THREE.Mesh( cubeGeometry, cubeMaterial );
                             
-                            var newPoint = intersect.point;
-                            var newNormal = intersect.face.normal;
+                            var newPoint = intersect.point.clone();
+                            var newNormal = intersect.face.normal.clone();
                             
               
-                            //From current intersect.point and intersect.face.normal to get corresponding point and normal if no rotation
+                            //Go back to the original position before rotation to calculate the new voxel
                             if ( currentRotation != 0 ){
                                 var cosRotationBack = Math.cos(currentRotation);
                                 var sinRotationBack = 0 - Math.sin(currentRotation);
@@ -286,19 +289,13 @@
                             voxel.position.copy( newPoint ).add( newNormal );
                             voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
                             
+                            objects.push( voxel ); 
                             
-                            //Rotate painted voxels back, then add the new one and rotate to the current position together
+                            
+                            //Rotate all back, add the new voxle, and then all rotate together to current position
                             group.rotation.y = 0;
                             group.add(voxel);
-
-                            group.rotation.y = currentRotation;
-                            
-                            
-                            ////deleted
-                            //scene.add( voxel );
-                            ////
-
-                            objects.push( voxel );                          
+                            group.rotation.y = currentRotation;                                                           
                             
                         }
 
@@ -376,9 +373,9 @@
                 }*/
                 
                 group.rotation.y += yRotation;
-                ////
+                group.rotation.y %= (Math.PI * 2);
                 
-                
+         
 				renderer.render( scene, camera );
 
 			}
