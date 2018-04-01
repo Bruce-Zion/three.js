@@ -265,13 +265,25 @@
                             
                             var voxel = new THREE.Mesh( cubeGeometry, cubeMaterial );
                             
+                            var newPoint = intersect.point;
+                            var newNormal = intersect.face.normal;
+                            
               
                             //From current intersect.point and intersect.face.normal to get corresponding point and normal if no rotation
-                            intersect.point.rotation.y -= currentRotation;
-                            intersect.face.normal.rotation.y -= currentRotation;
+                            if ( currentRotation != 0 ){
+                                var cosRotationBack = Math.cos(currentRotation);
+                                var sinRotationBack = 0 - Math.sin(currentRotation);
+                                
+                                newPoint.z = cosRotationBack * intersect.point.z - sinRotationBack * intersect.point.x;
+                                newPoint.x = sinRotationBack * intersect.point.z + cosRotationBack * intersect.point.x;
+                                
+                                newNormal.z = cosRotationBack * intersect.face.normal.z - sinRotationBack * intersect.face.normal.x;
+                                newNormal.x = sinRotationBack * intersect.face.normal.z + cosRotationBack * intersect.face.normal.x;
+                            }
+                            
                             
              
-                            voxel.position.copy( intersect.point ).add( intersect.face.normal );
+                            voxel.position.copy( newPoint ).add( newNormal );
                             voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
                             
                             
