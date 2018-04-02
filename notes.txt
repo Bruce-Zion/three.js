@@ -1,4 +1,59 @@
 blockbuilderandviewer from "voxel painter";
 
-misc_controls_trackballs, all kinds of controls
-buffergeometry drawcalls, dat.GUI
+import objects and materials
+---------------------------------------------------------------
+webgl_loader_obj_mtl <OBJLoader, MTLLoader>
+webgl_materials_displacementmap <OBJLoader>
+
+
+controls
+---------------------------------------------------------------
+misc_controls_trackballs
+webgl_simple_gi.html <<orbitcontrols.js>> <观察正方体的内部空间>
+webgl_shadowmap_viewer.html <orbitcontrols.js>
+webgl_mirror_nodes <orbitcontrols.js> <观察正方体的内部空间>
+
+
+
+dat.GUI
+--------------------------------------------------------------
+buffergeometry drawcalls
+webgl_tonemapping.html
+webgl_modifier_subdivision <内置参数调整，非dat.GUI> <各种几何体>
+
+
+
+multiple views
+--------------------------------------------------------------
+webgl_multiple_views
+
+
+label the face of a cube
+--------------------------------------------------------------
+webgl_materials_texture_canvas
+
+
+
+color adjustment
+--------------------------------------------------------------
+webgl_postprocessing_nodes.html
+
+
+
+Physics
+--------------------------------------------------------------
+webgl_physics_volume
+
+
+
+Key visualization
+--------------------------------------------------------------
+webgl_multiple_elements_text <sound wave visualization>
+
+
+
+在谷歌浏览器中调试接口，出现：XMLHttpRequest cannot load错误
+需要配置谷歌浏览器，使浏览器支持跨域，步骤如下：
+具体操作如下：首先需要关闭谷歌浏览器的所有窗口
+右击谷歌浏览器图标——>属性。弹出属性对话框。在目标栏最后添加 --args --disable-web-security --user-data-dir
+注意空格
