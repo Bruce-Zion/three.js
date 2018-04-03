@@ -69,21 +69,6 @@
             animate();
                         
             
-            //////////////////////////////////////
-            function colorChange ( color ) {
-                
-                if (typeof color === "string") {
-
-                    color = color.replace('#', '0x');
-
-                }
-
-                //color.setHex( value );
-                return color;
-
-            }
-            
-            
             function textureChange(value){ 
                 value ? cubeMaterial.map = texture : cubeMaterial.map = null; 
                 cubeMaterial.needsUpdate = true;
@@ -99,7 +84,7 @@
                 
 				gui.add( effectController, "opacity", 0, 1 ).onChange( function(value){cubeMaterial.opacity = value;} );
                 
-				gui.addColor( effectController, "color" ).onChange( function(value){cubeMaterial.color.setHex(colorChange(value));} );
+				gui.addColor( effectController, "color" ).onChange( function(value){cubeMaterial.color.set(value);} );
                 
 				gui.add( effectController, "wireframe" ).onChange( function(value){cubeMaterial.wireframe = value;} );
                 
