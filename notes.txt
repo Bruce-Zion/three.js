@@ -17,7 +17,7 @@ webgl_mirror_nodes <orbitcontrols.js> <观察正方体的内部空间>
 
 dat.GUI
 --------------------------------------------------------------
-buffergeometry drawcalls
+webgl_buffergeometry_drawcalls
 webgl_tonemapping.html
 webgl_modifier_subdivision <内置参数调整，非dat.GUI> <各种几何体>
 
