@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Block builder and viewer by LiYajun</title>
+		<title>Block builder and viewer 3.0 by LiYajun</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
@@ -17,20 +17,24 @@
 
 		<script src="../build/three.js"></script>
 
-		<script src="js/renderers/Projector.js"></script>
-		<script src="js/renderers/CanvasRenderer.js"></script>
         <script src="js/libs/dat.gui.min.js"></script>
+        <script src="js/controls/OrbitControls.js"></script>
 
 		<script>
+            
+            /*To be improved
+            1. Change wireframe: boxHelper
+            2. Add projection lights: line3
+            3. Animation to the front/top/left views  https://github.com/tweenjs/tween.js
+            4. Add more textures
+            5. Switch camera: chapter02/07-08
+            */
 
 			var container;
 			var camera, scene, renderer;
-			var plane;
-            
+			var plane;            
             
             var gridHelper;
-            var group = new THREE.Mesh(); 
-            
             
             //plane and grid for front, left and top views
             var frontViewPlane, leftViewPlane, topViewPlane;
@@ -41,25 +45,17 @@
             
 
 			var mouse, raycaster, isShiftDown = false;
+            
+            var mouseXOnMouseDown = 0;
+            var mouseYOnMouseDown = 0;
 
 			var cubeGeometry = new THREE.BoxGeometry( 50, 50, 50 );
 			var cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c } );
             
             var texture = new THREE.TextureLoader().load( "textures/brucetest/square-outline-textured.png" );
             
-			var objects = [];
-            
-            ////Rotation related
-            var targetRotation = 0;
-			var targetRotationOnMouseDown = 0;
-            var currentRotation;
-
-			var mouseX = 0;
-			var mouseXOnMouseDown = 0;
-
-			var windowHalfX = window.innerWidth / 2;
-			var windowHalfY = window.innerHeight / 2;
-            
+			var objects = [];            
+                
             
             //block effects
             var effectController = {
@@ -92,7 +88,7 @@
                         frontViewGrid.visible = true;
                         leftViewGrid.visible = false;
                         topViewGrid.visible = false;
-                        //gridHelper.visible = false;
+                        gridHelper.visible = false;
                         
                         frontViewPlane.visible = true;
                         leftViewPlane.visible = false;
@@ -100,12 +96,8 @@
                         
                         scene.remove( ambientLight );
                         
-                        directionalLight.position.set( 0, 0, 1 );
-                        
-                        
-                        //camera.position.set( 500, 800, 1300 );
-                        //camera.updateProjectionMatrix();
-                        
+                        directionalLight.position.set( 0, 0, 505 );
+                       
                         break;
                         
                     case "left":
@@ -120,7 +112,7 @@
                         
                         scene.remove( ambientLight );
                         
-                        directionalLight.position.set( -1, 0, 0 );
+                        directionalLight.position.set( -505, 0, 0 );
                         
                         break;
                         
@@ -136,7 +128,7 @@
                         
                         scene.remove( ambientLight );
                         
-                        directionalLight.position.set( 0, 1, 0 );
+                        directionalLight.position.set( 0, 505, 0 );
                         
                         break;
                         
@@ -203,11 +195,8 @@
 				// Grid
 
 				gridHelper = new THREE.GridHelper( 1000, 20 );
-                gridHelper.receiveShadow = true;
-				
-                
-                group.add(gridHelper);
-                scene.add(group);
+                                
+                scene.add(gridHelper);
                 
                 
                 //
@@ -218,26 +207,25 @@
 				var geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
 				geometry.rotateX( - Math.PI / 2 );
 
-				//plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
-                plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xcccccc } ) );
-                plane.receiveShadow = true;
-				scene.add( plane );
-
-				objects.push( plane );
-                group.add(plane);
-                
+				plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+                objects.push( plane );
+                                
                                 
                 // Lights
 				ambientLight = new THREE.AmbientLight( 0x606060 );
 				scene.add( ambientLight );
                 
-				directionalLight = new THREE.DirectionalLight( 0xffffff, 1.5 );
-				directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
-                //directionalLight.position.set( 0, 0, 1 ).normalize();
+				directionalLight = new THREE.DirectionalLight( 0xffffff, 1.2 );
+				directionalLight.position.set( 1, 0.75, 0.5 ).normalize();                
                 directionalLight.castShadow = true;
-                //directionalLight.shadow.camera.near = 0.5;    // default
-                directionalLight.shadow.camera.far = 5000;     
                 
+                directionalLight.shadow.camera.near = 0.5;  
+                directionalLight.shadow.camera.far = 1500;
+                directionalLight.shadow.camera.left = -500;
+                directionalLight.shadow.camera.right = 500;
+                directionalLight.shadow.camera.top = 500;
+                directionalLight.shadow.camera.bottom = -500;  
+                                                
 				scene.add( directionalLight );
                 
                 
@@ -246,10 +234,11 @@
                 
                 var axesHelper = new THREE.AxesHelper( 1000 );
                 scene.add( axesHelper );
-                //var cameraHelper = new THREE.CameraHelper( camera );
-                //scene.add( cameraHelper );
-                var directionalLightHelper = new THREE.DirectionalLightHelper( directionalLight, 50, 0xff0000 );
-                scene.add( directionalLightHelper );
+                /*
+                var cameraHelper = new THREE.CameraHelper( directionalLight.shadow.camera );
+                scene.add( cameraHelper );
+                //var directionalLightHelper = new THREE.DirectionalLightHelper( directionalLight, 50, 0xff0000 );
+                //scene.add( directionalLightHelper );
                 
                 var lightDir = new THREE.Vector3( 1, 0.75, 0.5 );
                 //var lightDir = new THREE.Vector3( 0, 0, 1 );
@@ -262,6 +251,7 @@
                 var cameraDirHelper = new THREE.ArrowHelper( cameraDir, origin, 500, 0x00ff00 );
                 scene.add( lightDirHelper );
                 scene.add( cameraDirHelper );
+                */
                 
                 
                 /////////////////////////////////////////////////////////////////////////////////////////
@@ -281,17 +271,10 @@
                 leftViewGrid.visible = false;
                 topViewGrid.visible = false;
                 
-                frontViewGrid.receiveShadow = true;
-                leftViewGrid.receiveShadow = true;
-                topViewGrid.receiveShadow = true;
-                
-                group.add(frontViewGrid);
-                group.add(leftViewGrid);
-                group.add(topViewGrid);
-                
-                var viewGeometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
-                var viewMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
-                
+                               
+                var viewGeometry = new THREE.PlaneBufferGeometry( 1000, 1000, 20, 20 );
+                var viewMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+                                
 				frontViewPlane = new THREE.Mesh( viewGeometry, viewMaterial );
                 leftViewPlane = new THREE.Mesh( viewGeometry, viewMaterial );
                 topViewPlane = new THREE.Mesh( viewGeometry, viewMaterial );
@@ -309,11 +292,14 @@
                 
                 frontViewPlane.receiveShadow = true;
                 leftViewPlane.receiveShadow = true;
-                topViewPlane.receiveShadow = true;
+                topViewPlane.receiveShadow = true;             
                 
-                group.add(frontViewPlane);
-                group.add(leftViewPlane);
-                group.add(topViewPlane);				
+              	scene.add(frontViewGrid);
+                scene.add(leftViewGrid);
+                scene.add(topViewGrid);
+                scene.add(frontViewPlane);
+                scene.add(leftViewPlane);
+                scene.add(topViewPlane);
                 //////////////////////////////////////////////////////////////////////////////////////////
                 
                 
@@ -325,26 +311,46 @@
 				container.appendChild( renderer.domElement );
                 
                 
-				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-				document.addEventListener( 'keydown', onDocumentKeyDown, false );
+                
+                // Mouse control
+				var controls = new THREE.OrbitControls( camera, renderer.domElement );
+				//controls.target.set( 0, 0, 0 );
+				controls.update();
+                
+                
+                document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+                document.addEventListener( 'keydown', onDocumentKeyDown, false );
 				document.addEventListener( 'keyup', onDocumentKeyUp, false );
-
-				//
-
+                				
 				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
 
-			function onWindowResize() {
+			
+            
+            function onWindowResize() {
 
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 
 				renderer.setSize( window.innerWidth, window.innerHeight );                
 			}
+            
+            
+            function onDocumentMouseDown( event ) {
+				
+                mouseXOnMouseDown = event.clientX;
+                mouseYOnMouseDown = event.clientY;
+			}
 
-			function onDocumentMouseDown( event ) {
+			
+			function onDocumentMouseUp( event ) {
                 
+                //if a dragging event, do nothing
+                if ( event.clientX != mouseXOnMouseDown || event.clientY != mouseYOnMouseDown )
+                    return;
+				
                 mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
                 mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
 
@@ -352,128 +358,37 @@
 
                 var intersects = raycaster.intersectObjects( objects );
 
-                    
-                //Only when clicking on or dragging from the plane/blocks, we'll do something
                 if ( intersects.length > 0 ) {
 
-                    event.preventDefault();
+                    var intersect = intersects[ 0 ];
 
-                    
-                    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-                    document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-                    document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+                    if ( isShiftDown ) {
 
-                    mouseXOnMouseDown = event.clientX - windowHalfX;
-                    targetRotationOnMouseDown = targetRotation;
-                }
-			}
-            
-            
-            ///////////////////////////////////////////////////
-            //FUNCTION ONDOCUMENTMOUSEMOVE//
-            ///////////////////////////////////////////////////
-			function onDocumentMouseMove( event ) {
+                        if ( intersect.object != plane ) {
 
-				mouseX = event.clientX - windowHalfX;
+                            objects.splice( objects.indexOf( intersect.object ), 1 );
+                            scene.remove( intersect.object );
 
-				targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.001;
-                
-                targetRotation %= (Math.PI * 2);
-
-			}
-            
-            
-            ///////////////////////////////////////////////////
-            //FUNCTION ONDOCUMENTMOUSEUP//
-            ///////////////////////////////////////////////////
-			function onDocumentMouseUp( event ) {
-
-				document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-				document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-				document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-                
-                mouseX = event.clientX - windowHalfX;
-                
-                if(Math.abs(mouseX - mouseXOnMouseDown) < 1.0){
-                    mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-                    mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
-
-                    raycaster.setFromCamera( mouse, camera );
-
-                    var intersects = raycaster.intersectObjects( objects );
-
-                    if ( intersects.length > 0 ) {
-
-                        var intersect = intersects[ 0 ];
-
-                        if ( isShiftDown ) {
-
-                            if ( intersect.object != plane ) {
-
-                                
-                                group.remove(intersect.object);
-                                
-                                objects.splice( objects.indexOf( intersect.object ), 1 );
-
-                            }
-
-                        } else {
-                            
-                            
-                            currentRotation = group.rotation.y;
-                            
-                            var voxel = new THREE.Mesh( cubeGeometry, cubeMaterial );
-                            
-                            var newPoint = intersect.point.clone();
-                            var newNormal = intersect.face.normal.clone();
-                            
-              
-                            //Go back to the original position before rotation to calculate the new voxel
-                            if ( currentRotation != 0 ){
-                                var cosRotationBack = Math.cos(currentRotation);
-                                var sinRotationBack = 0 - Math.sin(currentRotation);
-                                
-                                newPoint.z = cosRotationBack * intersect.point.z - sinRotationBack * intersect.point.x;
-                                newPoint.x = sinRotationBack * intersect.point.z + cosRotationBack * intersect.point.x;
-                                
-                                newNormal.z = cosRotationBack * intersect.face.normal.z - sinRotationBack * intersect.face.normal.x;
-                                newNormal.x = sinRotationBack * intersect.face.normal.z + cosRotationBack * intersect.face.normal.x;
-                            }
-                            
-                            
-             
-                            voxel.position.copy( newPoint ).add( newNormal );
-                            voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
-                            voxel.castShadow = true;
-                            
-                            objects.push( voxel ); 
-                            
-                            
-                            //Rotate all back, add the new voxle, and then all rotate together to current position
-                            group.rotation.y = 0;
-                            group.add(voxel);
-                            group.rotation.y = currentRotation;                              
-                            
                         }
- 
+
+                    } else {                            
+
+                        var block = new THREE.Mesh( cubeGeometry, cubeMaterial );
+
+                        block.position.copy( intersect.point ).add( intersect.face.normal );
+                        block.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+                        block.castShadow = true;
+                        block.receiveShadow = true;
+
+                        objects.push( block ); 
+                        scene.add( block );
+
                     }
+
                 }
-
 			}
             
             
-            ///////////////////////////////////////////////////
-            //FUNCTION ONDOCUMENTMOUSEOUT//
-            ///////////////////////////////////////////////////
-			function onDocumentMouseOut( event ) {
-
-				document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-				document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-				document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-
-			}
-            
-
 			function onDocumentKeyDown( event ) {
 
 				switch( event.keyCode ) {
@@ -494,10 +409,7 @@
 			}
             
             
-            ///////////////////////////////////////////////////
-            //FUNCTION ANIMATE//
-            ///////////////////////////////////////////////////
-			function animate() {
+            function animate() {
 
 				requestAnimationFrame( animate );
 
@@ -506,21 +418,9 @@
 			}
             
             
-            ///////////////////////////////////////////////////
-            //FUNCTION RENDER//
-            ///////////////////////////////////////////////////
-			function render() {
+            function render() {
                 
-                
-                var yRotation = targetRotation - group.rotation.y;
-                        
-                            
-                group.rotation.y += yRotation;
-                group.rotation.y %= (Math.PI * 2);
-                
-         
-				renderer.render( scene, camera );
-
+             	renderer.render( scene, camera );
 			}
 			
 
