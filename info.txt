@@ -1,0 +1,5 @@
+http://www.fileformat.info/format/material/
+OBJ/MTL文件
+
+https://www.autodesk.com/cn/3dsmax/2012help/index.html?url=files/GUID-245C4F26-7D3B-40E4-B815-531E3DF4996-2035.htm,topicNumber=d28e395513
+3DS MAX官方参考手册
