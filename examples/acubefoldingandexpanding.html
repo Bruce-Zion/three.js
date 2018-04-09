@@ -28,6 +28,7 @@
 		<script>
             
             //https://stackoverflow.com/questions/41320005/folding-rectangles-to-form-a-cube-using-three-js
+            //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Details_of_the_Object_Model 补习Java
             
             var camera, scene, renderer, controls;
             var sides = [];
@@ -99,6 +100,67 @@
             function animate() {
               requestAnimationFrame(animate);
               TWEEN.update();
+              render();
+            }
+
+            function render() {
+              renderer.render(scene, camera);
+            }
+            
+            
+            
+            //https://jsfiddle.net/prisoner849/za29828m/
+            var camera, scene, renderer, controls;
+            var sides = [];
+            var clock = new THREE.Clock();
+            init();
+            animate();
+
+            function init() {
+
+              scene = new THREE.Scene();
+              camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+              camera.position.set(0, 0, 1).setLength(5);
+
+              renderer = new THREE.WebGLRenderer({
+                antialias: true
+              });
+              renderer.setSize(window.innerWidth, window.innerHeight);
+              document.body.appendChild(renderer.domElement);
+
+              controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+              //sides
+              var geom = new THREE.PlaneGeometry(1, 1);
+              for (var i = 0; i < 5; i++) {
+                var s = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({
+                  color: Math.random() * 0xffffff,
+                  wireframe: true
+                }));
+                s.position.set(Math.random() * 5 - 2.5, Math.random() * 5 - 2.5, 0);
+                scene.add(s);
+                //sides.push(s);
+              }
+              var material = new THREE.MeshBasicMaterial({
+                color: "blue",
+                side: THREE.DoubleSide
+              });
+              var side = new THREE.Mesh(geom, material);
+              sides.push(side);
+              scene.add(side);
+
+              var dragControls = new THREE.DragControls(sides, camera, renderer.domElement);
+              dragControls.addEventListener('dragstart', function(event) {
+                controls.enabled = false;
+              });
+              dragControls.addEventListener('dragend', function(event) {
+                controls.enabled = true;
+              });
+
+            }
+
+            function animate() {
+              requestAnimationFrame(animate);
               render();
             }
 
