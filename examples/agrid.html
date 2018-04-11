@@ -1,105 +1,93 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+
+<html lang="en">
+    
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>jQuery下拉显示图片相册代码</title>
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<link href="css/style.css" rel="stylesheet">
-
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/superbox.js"></script>
-<script type="text/javascript">
-$(function() {
-    $('.superbox').SuperBox();
-});
-    
-    
-    //http://www.17sucai.com/preview/1/2014-11-12/jQuery%E5%93%8D%E5%BA%94%E5%BC%8F%E5%9B%BE%E7%89%87/index.html
-    
-</script>
-
+    <title>The grid for selecting a layout of a unfolded cube</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #ffffff;
+            margin: 0px;
+            overflow: hidden;
+        }
+        
+        img {
+            border: 1px, #ff0000;
+            height: 80px;
+            width: 80px;
+        }
+        
+        .superbox-list{display:inline-block;*display:inline;zoom:1;width:12.5%;}
+        .superbox-img{max-width:100%;width:100%;cursor:pointer;}
+        .superbox-show{text-align:center;position:relative;background:#333;box-shadow:inset 0 1px 5px #111;-webkit-box-shadow:inset 0 1px 5px #111;-moz-box-shadow:inset 0 1px 5px #111;width:100%;float:left;padding:25px 0;display:none;}
+        .superbox-current-img{max-width:100%;box-shadow:0 1px 4px #222;border:1px solid #222;}
+        .superbox-img:hover{opacity:0.8;}
+        .superbox-float{float:left;}
+        .superbox-close{opacity:0.7;cursor:pointer;position:absolute;top:25px;right:25px;background:url(../img/close.png) no-repeat center center;width:35px;height:35px;z-index:999;}
+        .superbox-close:hover{opacity:1;}
+    </style>
 </head>
+    
 <body>
-
-<div class="wrapper">
-    <!-- SuperBox -->
-    <div class="superbox">
-        <div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-1.jpg" data-img="img/superbox/superbox-full-1.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-2.jpg" data-img="img/superbox/superbox-full-2.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-3.jpg" data-img="img/superbox/superbox-full-3.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-4.jpg" data-img="img/superbox/superbox-full-4.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-5.jpg" data-img="img/superbox/superbox-full-5.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-6.jpg" data-img="img/superbox/superbox-full-6.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-7.jpg" data-img="img/superbox/superbox-full-7.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-8.jpg" data-img="img/superbox/superbox-full-8.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-9.jpg" data-img="img/superbox/superbox-full-9.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-10.jpg" data-img="img/superbox/superbox-full-10.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-11.jpg" data-img="img/superbox/superbox-full-11.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-12.jpg" data-img="img/superbox/superbox-full-12.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-13.jpg" data-img="img/superbox/superbox-full-13.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-14.jpg" data-img="img/superbox/superbox-full-14.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-15.jpg" data-img="img/superbox/superbox-full-15.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-16.jpg" data-img="img/superbox/superbox-full-16.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-17.jpg" data-img="img/superbox/superbox-full-17.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-18.jpg" data-img="img/superbox/superbox-full-18.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-19.jpg" data-img="img/superbox/superbox-full-19.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-20.jpg" data-img="img/superbox/superbox-full-20.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-21.jpg" data-img="img/superbox/superbox-full-21.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-22.jpg" data-img="img/superbox/superbox-full-22.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-23.jpg" data-img="img/superbox/superbox-full-23.jpg" alt="" class="superbox-img">
-        </div><!--
-        --><div class="superbox-list">
-            <img src="img/superbox/superbox-thumb-24.jpg" data-img="img/superbox/superbox-full-24.jpg" alt="" class="superbox-img">
-        </div>
-        <div class="superbox-float"></div>
-    </div>
-    <!-- /SuperBox -->
-</div>
+    
+    <table border="0">
+        <tr>
+            <td><img src="textures/brucetest/car1.png"></td>
+            <td><img src="textures/brucetest/car2.png"></td>
+            <td><img src="textures/brucetest/car3.png"></td>
+            <td><img src="textures/brucetest/car4.png"></td>
+            <td><img src="textures/brucetest/car5.png"></td>
+            <td><img src="textures/brucetest/car6.png"></td>            
+        </tr>
+            
+        <tr>
+            <td><img src="textures/brucetest/car7.png"></td>
+            <td><img src="textures/brucetest/car8.png"></td>
+            <td><img src="textures/brucetest/car9.png"></td>
+            <td><img src="textures/brucetest/car10.png"></td>
+            <td><img src="textures/brucetest/car11.png"></td>
+            <td><img src="textures/brucetest/car12.png"></td>
+        </tr>
+        
+        <tr>
+            <td><img src="textures/brucetest/gem1.png"></td>
+            <td><img src="textures/brucetest/gem2.png"></td>
+            <td><img src="textures/brucetest/gem3.png"></td>
+            <td><img src="textures/brucetest/gem4.png"></td>
+            <td><img src="textures/brucetest/gem5.png"></td>
+            <td><img src="textures/brucetest/gem6.png"></td>            
+        </tr>
+            
+        <tr>
+            <td><img src="textures/brucetest/gem7.png"></td>
+            <td><img src="textures/brucetest/gem8.png"></td>
+            <td><img src="textures/brucetest/gem9.png"></td>
+            <td><img src="textures/brucetest/gem10.png"></td>
+            <td><img src="textures/brucetest/gem11.png"></td>
+            <td><img src="textures/brucetest/gem12.png"></td>
+        </tr>
+        
+        <tr>
+            <td><img src="textures/brucetest/sign1.png"></td>
+            <td><img src="textures/brucetest/sign2.png"></td>
+            <td><img src="textures/brucetest/sign3.png"></td>
+            <td><img src="textures/brucetest/sign4.png"></td>
+            <td><img src="textures/brucetest/sign5.png"></td>
+            <td><img src="textures/brucetest/sign6.png"></td>            
+        </tr>
+            
+        <tr>
+            <td><img src="textures/brucetest/sign7.png"></td>
+            <td><img src="textures/brucetest/sign8.png"></td>
+            <td><img src="textures/brucetest/sign9.png"></td>
+            <td><img src="textures/brucetest/sign10.png"></td>
+            <td><img src="textures/brucetest/sign11.png"></td>
+            <td><img src="textures/brucetest/sign12.png"></td>
+        </tr>
+    </table>  
 
 </body>
 </html>
