@@ -40,8 +40,8 @@ function init(){
     
     //........................................................................................
 	// Package tinkering
-	paketGeo = new THREE.Geometry();   // eine allgemeine Geometrie
-	paketGeo.vertices = [];     // Datenfeld der Knoten, Koordinaten als Ortsvektoren, Index -> Flaechenbildung
+	paketGeo = new THREE.Geometry();   // a general geometry
+	paketGeo.vertices = [];     // Data field of the nodes, coordinates as location vectors, index -> area formation
 	for(x=-30 ; x<51; x+=20){		 
 		paketGeo.vertices.push(new THREE.Vector3(   x, 0,-10 )); // Knoten 0, 2, 4, 6, 8
 		paketGeo.vertices.push(new THREE.Vector3(   x, 0, 10 )); // Knoten 1, 3, 5, 7, 9	
@@ -50,12 +50,12 @@ function init(){
 		paketGeo.vertices.push(new THREE.Vector3(  10, 0,-30 )); // Knoten 11 
 		paketGeo.vertices.push(new THREE.Vector3( -10, 0, 30 )); // Knoten 12
 		paketGeo.vertices.push(new THREE.Vector3(  10, 0, 30 )); // Knoten 13
-		paketGeo.vertices.push(new THREE.Vector3(  40, 0,  0 )); // Knoten 14  viermal identische Koordinaten
+		paketGeo.vertices.push(new THREE.Vector3(  40, 0,  0 )); // Knoten 14  four times identical coordinates
 		paketGeo.vertices.push(new THREE.Vector3(  40, 0,  0 )); // Knoten 15
 		paketGeo.vertices.push(new THREE.Vector3(  40, 0,  0 )); // Knoten 16
 		paketGeo.vertices.push(new THREE.Vector3(  40, 0,  0 )); // Knoten 17		
 	paketGeo.computeVertexNormals();
-	paketGeo.faces = [    // Datenfeld der Flaechen (Knotennummern der Ecken des Dreiecks in positivem Drehsinn von aussen)
+	paketGeo.faces = [    // Data field of the surfaces (node numbers of the corners of the triangle in positive direction of rotation from outside)
 		new THREE.Face3(  0,  2,  1 ),    //  0
 		new THREE.Face3(  1,  2,  3 ),    //  1
 		new THREE.Face3(  2,  4,  3 ),    //  2
