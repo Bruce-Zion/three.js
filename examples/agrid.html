@@ -3,91 +3,316 @@
 <html lang="en">
     
 <head>
-    <title>The grid for selecting a layout of a unfolded cube</title>
+    <title>Cube folding and expanding by LiYajun</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    
     <style>
+        
         body {
-            font-family: Monospace;
-            background-color: #ffffff;
+            font: 16px simsun Arial;
+            background:#fff
             margin: 0px;
             overflow: hidden;
         }
         
         img {
-            border: 1px, #ff0000;
+            border: 1px solid #ccc;
+            opacity: 0.3;
             height: 80px;
             width: 80px;
+            display:block;
         }
         
-        .superbox-list{display:inline-block;*display:inline;zoom:1;width:12.5%;}
-        .superbox-img{max-width:100%;width:100%;cursor:pointer;}
-        .superbox-show{text-align:center;position:relative;background:#333;box-shadow:inset 0 1px 5px #111;-webkit-box-shadow:inset 0 1px 5px #111;-moz-box-shadow:inset 0 1px 5px #111;width:100%;float:left;padding:25px 0;display:none;}
-        .superbox-current-img{max-width:100%;box-shadow:0 1px 4px #222;border:1px solid #222;}
-        .superbox-img:hover{opacity:0.8;}
-        .superbox-float{float:left;}
-        .superbox-close{opacity:0.7;cursor:pointer;position:absolute;top:25px;right:25px;background:url(../img/close.png) no-repeat center center;width:35px;height:35px;z-index:999;}
-        .superbox-close:hover{opacity:1;}
+        img:hover{
+            opacity: 0.8;
+        }
+        
+        table, tr, td {
+            padding: 0px;            
+            border-spacing:0;
+        }
+       
     </style>
+    
 </head>
     
 <body>
     
-    <table border="0">
+    <script src="../build/three.js"></script>
+
+    <script src="js/libs/dat.gui.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/libs/tween.min.js"></script>
+    <script src="js/controls/DragControls.js"></script>
+    
+    <br>
+    <p align="center"> Please click on the pics to select the layout of the unfolded cube </p>
+    <br>
+        
+    <table border="0" align="center">
         <tr>
-            <td><img src="textures/brucetest/car1.png"></td>
-            <td><img src="textures/brucetest/car2.png"></td>
-            <td><img src="textures/brucetest/car3.png"></td>
-            <td><img src="textures/brucetest/car4.png"></td>
-            <td><img src="textures/brucetest/car5.png"></td>
-            <td><img src="textures/brucetest/car6.png"></td>            
+            <td><img src="textures/brucetest/car1.png" onclick="selectImg(0, this)"></td>
+            <td><img src="textures/brucetest/car2.png" onclick="selectImg(1, this)"></td>
+            <td><img src="textures/brucetest/car3.png" onclick="selectImg(2, this)"></td>
+            <td><img src="textures/brucetest/car4.png" onclick="selectImg(3, this)"></td>
+            <td><img src="textures/brucetest/car5.png" onclick="selectImg(4, this)"></td>
+            <td><img src="textures/brucetest/car6.png" onclick="selectImg(5, this)"></td>            
         </tr>
             
         <tr>
-            <td><img src="textures/brucetest/car7.png"></td>
-            <td><img src="textures/brucetest/car8.png"></td>
-            <td><img src="textures/brucetest/car9.png"></td>
-            <td><img src="textures/brucetest/car10.png"></td>
-            <td><img src="textures/brucetest/car11.png"></td>
-            <td><img src="textures/brucetest/car12.png"></td>
+            <td><img src="textures/brucetest/car7.png" onclick="selectImg(6, this)"></td>
+            <td><img src="textures/brucetest/car8.png" onclick="selectImg(7, this)"></td>
+            <td><img src="textures/brucetest/car9.png" onclick="selectImg(8, this)"></td>
+            <td><img src="textures/brucetest/car10.png" onclick="selectImg(9, this)"></td>
+            <td><img src="textures/brucetest/car11.png" onclick="selectImg(10, this)"></td>
+            <td><img src="textures/brucetest/car12.png" onclick="selectImg(11, this)"></td>
         </tr>
         
         <tr>
-            <td><img src="textures/brucetest/gem1.png"></td>
-            <td><img src="textures/brucetest/gem2.png"></td>
-            <td><img src="textures/brucetest/gem3.png"></td>
-            <td><img src="textures/brucetest/gem4.png"></td>
-            <td><img src="textures/brucetest/gem5.png"></td>
-            <td><img src="textures/brucetest/gem6.png"></td>            
+            <td><img src="textures/brucetest/gem1.png" onclick="selectImg(12, this)"></td>
+            <td><img src="textures/brucetest/gem2.png" onclick="selectImg(13, this)"></td>
+            <td><img src="textures/brucetest/gem3.png" onclick="selectImg(14, this)"></td>
+            <td><img src="textures/brucetest/gem4.png" onclick="selectImg(15, this)"></td>
+            <td><img src="textures/brucetest/gem5.png" onclick="selectImg(16, this)"></td>
+            <td><img src="textures/brucetest/gem6.png" onclick="selectImg(17, this)"></td>            
         </tr>
             
         <tr>
-            <td><img src="textures/brucetest/gem7.png"></td>
-            <td><img src="textures/brucetest/gem8.png"></td>
-            <td><img src="textures/brucetest/gem9.png"></td>
-            <td><img src="textures/brucetest/gem10.png"></td>
-            <td><img src="textures/brucetest/gem11.png"></td>
-            <td><img src="textures/brucetest/gem12.png"></td>
+            <td><img src="textures/brucetest/gem7.png" onclick="selectImg(18, this)"></td>
+            <td><img src="textures/brucetest/gem8.png" onclick="selectImg(19, this)"></td>
+            <td><img src="textures/brucetest/gem9.png" onclick="selectImg(20, this)"></td>
+            <td><img src="textures/brucetest/gem10.png" onclick="selectImg(21, this)"></td>
+            <td><img src="textures/brucetest/gem11.png" onclick="selectImg(22, this)"></td>
+            <td><img src="textures/brucetest/gem12.png" onclick="selectImg(23, this)"></td>
         </tr>
         
         <tr>
-            <td><img src="textures/brucetest/sign1.png"></td>
-            <td><img src="textures/brucetest/sign2.png"></td>
-            <td><img src="textures/brucetest/sign3.png"></td>
-            <td><img src="textures/brucetest/sign4.png"></td>
-            <td><img src="textures/brucetest/sign5.png"></td>
-            <td><img src="textures/brucetest/sign6.png"></td>            
+            <td><img src="textures/brucetest/sign1.png" onclick="selectImg(24, this)"></td>
+            <td><img src="textures/brucetest/sign2.png" onclick="selectImg(25, this)"></td>
+            <td><img src="textures/brucetest/sign3.png" onclick="selectImg(26, this)"></td>
+            <td><img src="textures/brucetest/sign4.png" onclick="selectImg(27, this)"></td>
+            <td><img src="textures/brucetest/sign5.png" onclick="selectImg(28, this)"></td>
+            <td><img src="textures/brucetest/sign6.png" onclick="selectImg(29, this)"></td>            
         </tr>
             
         <tr>
-            <td><img src="textures/brucetest/sign7.png"></td>
-            <td><img src="textures/brucetest/sign8.png"></td>
-            <td><img src="textures/brucetest/sign9.png"></td>
-            <td><img src="textures/brucetest/sign10.png"></td>
-            <td><img src="textures/brucetest/sign11.png"></td>
-            <td><img src="textures/brucetest/sign12.png"></td>
+            <td><img src="textures/brucetest/sign7.png" onclick="selectImg(30, this)"></td>
+            <td><img src="textures/brucetest/sign8.png" onclick="selectImg(31, this)"></td>
+            <td><img src="textures/brucetest/sign9.png" onclick="selectImg(32, this)"></td>
+            <td><img src="textures/brucetest/sign10.png" onclick="selectImg(33, this)"></td>
+            <td><img src="textures/brucetest/sign11.png" onclick="selectImg(34, this)"></td>
+            <td><img src="textures/brucetest/sign12.png" onclick="selectImg(35, this)"></td>
         </tr>
     </table>  
+    
+    <br>
+    <p align="center"><a href="#" onclick="cubeOperation()">GO 3D and start folding</a></p>
+    
+    
+    
+    <script>
+        
+        //imgArr is used to store the selection status of the images
+        var imgArr = new Array(36);
+        imgArr.fill(false); 
+        
+        var selectedImgNum = 0;
+        
+        function selectImg( imgNum, img ){
+            if ( imgArr[imgNum] == false ){
+                
+                //check if more than 6 images are selected
+                if ( selectedImgNum == 6 ){
+                    alert("No more than 6 can be selected.");
+                    return;
+                }
+                
+                var haveAdj = false;
+                
+                //check if current imag is adjacent to previously selected images
+                if ( imgNum >= 6 && imgArr[imgNum-6] == true){
+                    haveAdj = true;
+                }
+                if ( imgNum >= 1 && imgArr[imgNum-1] == true){
+                    haveAdj = true;
+                }
+                if ( imgNum < 35 && imgArr[imgNum+1] == true){
+                    haveAdj = true;
+                }
+                if ( imgNum < 30 && imgArr[imgNum+6] == true){
+                    haveAdj = true;
+                }
+                
+                if ( haveAdj == false && selectedImgNum > 0 ){
+                    alert("Please select a image adjacent to the previously selected ones.");
+                    return;
+                }
+                
+                img.style.opacity = 1;
+                img.style.border = "1px solid #f00";
+                imgArr[imgNum] = true;
+                selectedImgNum += 1;
+                
+            }else{
+                var adjNum = 0;
+                
+                if ( imgNum >= 6 && imgArr[imgNum-6] == true){
+                    adjNum += 1;
+                }
+                if ( imgNum >= 1 && imgArr[imgNum-1] == true){
+                    adjNum += 1;
+                }
+                if ( imgNum < 35 && imgArr[imgNum+1] == true){
+                    adjNum += 1;
+                }
+                if ( imgNum < 30 && imgArr[imgNum+6] == true){
+                    adjNum += 1;
+                }
+                
+                if ( adjNum > 1 ){
+                    alert("Only the images with one adjacent can be de-selected.");
+                    return;
+                }
+                
+                img.style.opacity = 0.3;
+                img.style.border = "1px solid #ccc";
+                imgArr[imgNum] = false;
+                selectedImgNum -= 1;                
+            }
+        }
+        
+        
+        function leftImgList ( imgNum ) {
+            
+            var column = imgNum % 6;
+            var leftArr = [];
+            
+            imgArr.forEach(function(item, index, array){
+                if ( index % 6 <= column && imgArr[index] == true ){
+                    leftArr.push(index);
+                }
+            });
+            
+            return leftArr;
+        }
+        
+        
+        //Start the 3D world
+        //////////////////////////////////////////////////////////////////////////////////////
+        function cubeOperation(){
+            var camera, scene, renderer, controls;
+            var sides = [];
+            var clock = new THREE.Clock();
+            init();
+            animate();
+
+            function init() {
+
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(105, window.innerWidth / window.innerHeight, 1, 1000);
+                camera.position.set(-0.5, 0.5, 1).setLength(5);
+
+                // Grid
+                gridHelper = new THREE.GridHelper( 10, 10 );
+                scene.add(gridHelper);
+
+                renderer = new THREE.WebGLRenderer({antialias: true});
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setClearColor(0xc0c0c0);
+                
+                
+                //Replace the contents of current page with WebGLRender
+                while (document.body.firstChild) {
+                    document.body.removeChild(document.body.firstChild);                    
+                }
+                document.body.style.margin = 0;
+                document.body.appendChild(renderer.domElement);
+                
+
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+                //sides
+                var geom = new THREE.PlaneGeometry(1,1);
+                var side0 = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({color: "white", wireframe: true}));
+                scene.add(side0);
+                
+                var side1Geom = new THREE.PlaneGeometry(1,1);
+                side1Geom.translate(-0.5,0,0);
+                var side1 = new THREE.Mesh(side1Geom, new THREE.MeshBasicMaterial({color: "white", wireframe: true}));
+                sides.push(side1);
+                
+                //////////////////////////////////
+                //test
+                /*
+                geom.computeBoundingBox();
+                side1Geom.computeBoundingBox();
+                console.log((geom.boundingBox.max.x + geom.boundingBox.min.x ) / 2);  
+                console.log((geom.boundingBox.max.y + geom.boundingBox.min.y ) / 2);  
+                console.log((geom.boundingBox.max.z + geom.boundingBox.min.z ) / 2);  
+                console.log( geom.center() ); 
+                console.log((side1Geom.boundingBox.max.x + side1Geom.boundingBox.min.x ) / 2);  
+                console.log((side1Geom.boundingBox.max.y + side1Geom.boundingBox.min.y ) / 2);  
+                console.log((side1Geom.boundingBox.max.z + side1Geom.boundingBox.min.z ) / 2);  
+                console.log( side1Geom.center() );
+                //////////////////////////////////////////////////////////////
+                */
+                
+
+                var side2 = side1.clone(); sides.push(side2);
+                var side3 = side1.clone(); sides.push(side3);
+                var side4 = side1.clone(); sides.push(side4);
+                var side5 = side1.clone(); sides.push(side5);
+                side5.material = new THREE.MeshBasicMaterial({color: "blue", side: THREE.DoubleSide});
+                //var texture = new THREE.TextureLoader().load( "textures/brucetest/square-outline-textured.png" );
+                //side5.material = new THREE.MeshLambertMaterial( { color: 0xfeb74c, map: texture, side: THREE.DoubleSide } );
+               
+                // hierarchy
+                side1.position.set(-0.5,0,0); side0.add(side1);
+                side2.position.set(0,-0.5,0); side2.rotation.z = Math.PI / 2; side0.add(side2);
+                side3.position.set(0.5,0,0); side3.rotation.z = Math.PI; side0.add(side3);                
+                side4.position.set(-0.5,-0.5,0); side4.rotation.z = Math.PI / 2; side3.add(side4);                
+                side5.position.set(-0.5,0.5,0); side5.rotation.z = -Math.PI / 2; side4.add(side5);
+                
+
+                //document.getElementById("run").addEventListener("click", foldTheCube);
+
+            }
+
+            function foldTheCube(){
+                var start = {value: 0};
+                var finish = {value: Math.PI / 2};
+                var angle = 0;
+                new TWEEN
+                .Tween(start)
+                .to(finish, 3000)
+                .easing(TWEEN.Easing.Sinusoidal.InOut)
+                .onUpdate(function(){
+                    angle = this.value;
+                    sides[0].rotation.y = angle;
+                    sides[1].rotation.x = -angle;
+                    sides[2].rotation.y = -angle;
+                    sides[3].rotation.x = -angle;
+                    sides[4].rotation.x = angle;
+                })
+                .start();
+            }
+
+            // animate
+            function animate() {
+              requestAnimationFrame(animate);
+              TWEEN.update();
+              render();
+            }
+
+            function render() {
+              renderer.render(scene, camera);
+            }
+        }        
+    
+    </script>
 
 </body>
+    
 </html>
