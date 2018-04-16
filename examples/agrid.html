@@ -294,8 +294,12 @@
         //////////////////////////////////////////////////////////////////////////////////////
         function cubeOperation(){
             var camera, scene, renderer, controls;
-            var sides = [];
-            var clock = new THREE.Clock();
+            var texture, material;
+            //var sides = [];
+            //var clock = new THREE.Clock();
+            
+            texture = new THREE.TextureLoader().load( "textures/brucetest/car1.png" );
+                material = new THREE.MeshLambertMaterial({ color: 0xfeb74c, map: texture });``
             
             if (selectedImgNum != 6){
                 alert("Please select 6 squares before going 3D.");
@@ -321,9 +325,9 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.setClearColor(0xc0c0c0);
                 
-                var texture = new THREE.TextureLoader().load( "textures/brucetest/car1.png" );
-                var material = new THREE.MeshLambertMaterial({map: texture});
                 
+                
+                                
                 
                 //Replace the contents of current page with WebGLRender
                 while (document.body.firstChild) {
@@ -346,32 +350,48 @@
                     new THREE.MeshBasicMaterial({color: "green", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
                     new THREE.MeshBasicMaterial({color: "green", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
                     new THREE.MeshBasicMaterial({color: "yellow", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
+                    material,
                 ];                
                 
-                var currentThinBox = 0;
-                
-                for (i=0; i<sRowNum; i++){
-                    for (j=0; j<sColNum; j++){
+                //for (i=0; i<sRowNum; i++){
+                    //for (j=0; j<sColNum; j++){
 
-                        if(squareArr[i*sColNum + j] == true){
+                        //if(squareArr[i*sColNum + j] == true){
                             
                             
                             
-                            materials.push( material );
+                            //materials.push( material );
                             
-                            var aThinBox = new THREE.Mesh( geometry, materials );
-                            aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0.01);
+                            var aThinBox = new THREE.Mesh( geometry, material );
+                            
+                            //material.needsUpdate = true;
+                            
+                            //aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0.01);
                             
                             thinBoxes.push(aThinBox);
                             
                             scene.add( aThinBox );
                             
-                            currentThinBox ++;
-                            
-                            materials.pop();
-                        }                    
-                    }
-                }             
+                            //materials.pop();
+                        //}                    
+                    //}
+                //}   
+                
+                
+                dummy = new THREE.Object3D();
+
+               plane = new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshBasicMaterial({color:0xff0000}));
+
+                  plane.position.set(50,0,0);
+
+                 dummy.add(plane);
+
+                 dummy.position.set(0,0,0);
+
+                 scene.add(dummy);
+                
+                //https://www.cnblogs.com/silent-stranger/p/6027266.html
+                //https://stackoverflow.com/questions/16319742/three-js-rotating-a-sphere-around-a-certain-axis
 
                 
                 //Add drag controls
@@ -385,7 +405,7 @@
                     
                     controls.enabled = false;
                     
-                    event.object.material.color.setHex(0x000000);
+                    //event.object.material.color.setHex(0x000000);
                 }
  
                 function dragEndCallback(event) {
@@ -428,7 +448,8 @@
                 */
 
             }
-
+            
+            /*
             function foldTheCube(){
                 var start = {value: 0};
                 var finish = {value: Math.PI / 2};
@@ -446,7 +467,7 @@
                     sides[4].rotation.x = angle;
                 })
                 .start();
-            }
+            }*/
 
             // animate
             function animate() {
