@@ -118,7 +118,17 @@
         var imgArr = new Array(36);
         imgArr.fill(false); 
         
+        //record the selected image number
         var selectedImgNum = 0;
+        
+        //trimmed image array to square array
+        var sColNum;
+        var sRowNum;
+        var squareArr = new Array();
+        
+        //Thin boxes to represent each face of the cube
+        var thinBoxes = new Array();
+        
         
         function selectImg( imgNum, img ){
             if ( imgArr[imgNum] == false ){
@@ -184,6 +194,87 @@
         }
         
         
+        //Get the minimum rectangle that contains the selected images
+        function getSquareArray(){
+            
+            var leftCol = 0;
+            var rightCol = 5;
+            var topRow = 0;
+            var bottomRow = 5;
+            
+            var i, j;
+            
+            //check if row is blank from top to bottom
+            for (i = 0; i < 6; i++){
+                if ( (imgArr[i*6] || imgArr[i*6+1] || imgArr[i*6+2] || imgArr[i*6+3] || imgArr[i*6+4] || imgArr[i*6+5]) == false){
+                    topRow ++;
+                }
+                else{
+                    break;
+                }                        
+            }
+            //check if row is blank from bottom to top
+            for (i = 5; i >= 0; i--){
+                if ( (imgArr[i*6] || imgArr[i*6+1] || imgArr[i*6+2] || imgArr[i*6+3] || imgArr[i*6+4] || imgArr[i*6+5]) == false){
+                    bottomRow --;
+                }
+                else{
+                    break;
+                }                        
+            }
+            //check if column is blank from left to right
+            for (i = 0; i < 6; i++){
+                if ( (imgArr[i] || imgArr[i+6] || imgArr[i+12] || imgArr[i+18] || imgArr[i+24] || imgArr[i+30]) == false){
+                    leftCol ++;
+                }
+                else{
+                    break;
+                }                        
+            }
+            
+            for (i = 5; i >= 0; i--){
+                if ( (imgArr[i] || imgArr[i+6] || imgArr[i+12] || imgArr[i+18] || imgArr[i+24] || imgArr[i+30]) == false){
+                    rightCol --;
+                }
+                else{
+                    break;
+                }                        
+            }
+            
+            sColNum = rightCol - leftCol + 1;
+            sRowNum = bottomRow - topRow + 1;
+            
+            for (i=0; i<sRowNum; i++){
+                for (j=0; j<sColNum; j++){
+                    
+                    if(imgArr[topRow*6 + i*6 + leftCol +j] == true){
+                        squareArr.push(true);
+                    }
+                    else{
+                        squareArr.push(false);
+                    }
+                }
+            }
+            
+            //check if 6 squares
+            var selectedSNum = 0;
+            
+            for (i=0; i<sRowNum; i++){
+                for (j=0; j<sColNum; j++){
+                    
+                    if(squareArr[i*sColNum + j] == true){
+                        selectedSNum ++;
+                    }                    
+                }
+            }
+            
+            if (selectedSNum != 6){
+                alert("Internal error, selected square number is not 6.");
+            }
+                
+        }
+        
+        
         function leftImgList ( imgNum ) {
             
             var column = imgNum % 6;
@@ -207,9 +298,11 @@
             var clock = new THREE.Clock();
             
             if (selectedImgNum != 6){
-                alert("Please select 6 squares before going 3D.")
+                alert("Please select 6 squares before going 3D.");
                 return;
             }
+            
+            getSquareArray();
             
             init();
             animate();
@@ -228,6 +321,9 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.setClearColor(0xc0c0c0);
                 
+                var texture = new THREE.TextureLoader().load( "textures/brucetest/car1.png" );
+                var material = new THREE.MeshLambertMaterial({map: texture});
+                
                 
                 //Replace the contents of current page with WebGLRender
                 while (document.body.firstChild) {
@@ -238,6 +334,67 @@
                 
 
                 controls = new THREE.OrbitControls(camera, renderer.domElement);
+                
+                
+                //set up unfolded view in 3D space
+                var geometry = new THREE.BoxGeometry( 1, 1, 0.5 );
+                
+                //Material sequence: x+, x-, y+, y-, z+, z-
+                var materials = [                                                
+                    new THREE.MeshBasicMaterial({color: "red", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
+                    new THREE.MeshBasicMaterial({color: "red", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
+                    new THREE.MeshBasicMaterial({color: "green", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
+                    new THREE.MeshBasicMaterial({color: "green", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
+                    new THREE.MeshBasicMaterial({color: "yellow", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
+                ];                
+                
+                var currentThinBox = 0;
+                
+                for (i=0; i<sRowNum; i++){
+                    for (j=0; j<sColNum; j++){
+
+                        if(squareArr[i*sColNum + j] == true){
+                            
+                            
+                            
+                            materials.push( material );
+                            
+                            var aThinBox = new THREE.Mesh( geometry, materials );
+                            aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0.01);
+                            
+                            thinBoxes.push(aThinBox);
+                            
+                            scene.add( aThinBox );
+                            
+                            currentThinBox ++;
+                            
+                            materials.pop();
+                        }                    
+                    }
+                }             
+
+                
+                //Add drag controls
+                var dragControls = new THREE.DragControls(thinBoxes, camera, renderer.domElement);
+                
+                dragControls.addEventListener('dragstart', dragStartCallback );
+                
+                dragControls.addEventListener('dragend', dragEndCallback );
+                
+                function dragStartCallback( event ) {
+                    
+                    controls.enabled = false;
+                    
+                    event.object.material.color.setHex(0x000000);
+                }
+ 
+                function dragEndCallback(event) {
+                    
+                    controls.enabled = true;
+                }
+                
+                
+                /*
 
                 //sides
                 var geom = new THREE.PlaneGeometry(1,1);
@@ -268,6 +425,7 @@
                 
 
                 //document.getElementById("run").addEventListener("click", foldTheCube);
+                */
 
             }
 
@@ -293,7 +451,7 @@
             // animate
             function animate() {
               requestAnimationFrame(animate);
-              TWEEN.update();
+              //TWEEN.update();
               render();
             }
 
