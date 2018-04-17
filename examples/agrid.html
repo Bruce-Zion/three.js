@@ -126,8 +126,33 @@
         var sRowNum;
         var squareArr = new Array();
         
+        //Record how image array is trimmed
+        var leftCol = 0;
+        var rightCol = 5;
+        var topRow = 0;
+        var bottomRow = 5;
+        
         //Thin boxes to represent each face of the cube
         var thinBoxes = new Array();
+        
+        
+        var camera, scene, renderer, controls, dragControls; 
+        
+        
+        var imgPath = [ "textures/brucetest/car1.png", "textures/brucetest/car2.png", "textures/brucetest/car3.png", 
+                        "textures/brucetest/car4.png", "textures/brucetest/car5.png", "textures/brucetest/car6.png", 
+                        "textures/brucetest/car7.png", "textures/brucetest/car8.png", "textures/brucetest/car9.png",
+                        "textures/brucetest/car10.png", "textures/brucetest/car11.png", "textures/brucetest/car12.png",
+                        "textures/brucetest/gem1.png", "textures/brucetest/gem2.png", "textures/brucetest/gem3.png", 
+                        "textures/brucetest/gem4.png", "textures/brucetest/gem5.png", "textures/brucetest/gem6.png", 
+                        "textures/brucetest/gem7.png", "textures/brucetest/gem8.png", "textures/brucetest/gem9.png",
+                        "textures/brucetest/gem10.png", "textures/brucetest/gem11.png", "textures/brucetest/gem12.png",
+                        "textures/brucetest/sign1.png", "textures/brucetest/sign2.png", "textures/brucetest/sign3.png", 
+                        "textures/brucetest/sign4.png", "textures/brucetest/sign5.png", "textures/brucetest/sign6.png", 
+                        "textures/brucetest/sign7.png", "textures/brucetest/sign8.png", "textures/brucetest/sign9.png",
+                        "textures/brucetest/sign10.png", "textures/brucetest/sign11.png", "textures/brucetest/sign12.png"
+                      ];
+        
         
         
         function selectImg( imgNum, img ){
@@ -195,12 +220,7 @@
         
         
         //Get the minimum rectangle that contains the selected images
-        function getSquareArray(){
-            
-            var leftCol = 0;
-            var rightCol = 5;
-            var topRow = 0;
-            var bottomRow = 5;
+        function getSquareArray(){               
             
             var i, j;
             
@@ -292,14 +312,7 @@
         
         //Start the 3D world
         //////////////////////////////////////////////////////////////////////////////////////
-        function cubeOperation(){
-            var camera, scene, renderer, controls;
-            var texture, material;
-            //var sides = [];
-            //var clock = new THREE.Clock();
-            
-            texture = new THREE.TextureLoader().load( "textures/brucetest/car1.png" );
-                material = new THREE.MeshLambertMaterial({ color: 0xfeb74c, map: texture });``
+        function cubeOperation(){            
             
             if (selectedImgNum != 6){
                 alert("Please select 6 squares before going 3D.");
@@ -318,15 +331,18 @@
                 camera.position.set(0, 0.5, 1).setLength(5);
 
                 // Grid
-                gridHelper = new THREE.GridHelper( 10, 10 );
+                var gridHelper = new THREE.GridHelper( 10, 10 );
                 scene.add(gridHelper);
 
                 renderer = new THREE.WebGLRenderer({antialias: true});
+                renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.setClearColor(0xc0c0c0);
                 
                 
-                
+                // Lights
+				ambientLight = new THREE.AmbientLight( 0xf0f0f0 );
+				scene.add( ambientLight );
                                 
                 
                 //Replace the contents of current page with WebGLRender
@@ -334,50 +350,43 @@
                     document.body.removeChild(document.body.firstChild);                    
                 }
                 document.body.style.margin = 0;
-                document.body.appendChild(renderer.domElement);
+                document.body.appendChild(renderer.domElement); 
+                                
                 
+                for (i=0; i<sRowNum; i++){
+                    for (j=0; j<sColNum; j++){
 
-                controls = new THREE.OrbitControls(camera, renderer.domElement);
-                
-                
-                //set up unfolded view in 3D space
-                var geometry = new THREE.BoxGeometry( 1, 1, 0.5 );
-                
-                //Material sequence: x+, x-, y+, y-, z+, z-
-                var materials = [                                                
-                    new THREE.MeshBasicMaterial({color: "red", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
-                    new THREE.MeshBasicMaterial({color: "red", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
-                    new THREE.MeshBasicMaterial({color: "green", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
-                    new THREE.MeshBasicMaterial({color: "green", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
-                    new THREE.MeshBasicMaterial({color: "yellow", side: THREE.DoubleSide, transparent: true, opacity: 0.5}),
-                    material,
-                ];                
-                
-                //for (i=0; i<sRowNum; i++){
-                    //for (j=0; j<sColNum; j++){
+                        if(squareArr[i*sColNum + j] == true){                            
+                            
+                            //set up unfolded view in 3D space
+                            var geometry = new THREE.BoxGeometry( 1, 1, 0.4 );
+                            var texture = new THREE.TextureLoader().load( imgPath[6*i + 6*topRow + j + leftCol] );
+                            var faceMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture, side: THREE.DoubleSide } );
+                            var backMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, side: THREE.DoubleSide } );
 
-                        //if(squareArr[i*sColNum + j] == true){
+                            var materials = [];
                             
+                            //materials: x+, x-, y+, y-, z+, z-. Why need push more backMaterial?
+                            materials.push( backMaterial ); materials.push( backMaterial ); materials.push( backMaterial );
+                            materials.push( backMaterial ); materials.push( faceMaterial ); materials.push( backMaterial ); 
+                            materials.push( backMaterial );
+                            //materials.push( backMaterial ); materials.push( backMaterial );
                             
+                                
+                            var aThinBox = new THREE.Mesh( geometry, materials );
                             
-                            //materials.push( material );
-                            
-                            var aThinBox = new THREE.Mesh( geometry, material );
-                            
-                            //material.needsUpdate = true;
-                            
-                            //aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0.01);
+                            aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0.2);
                             
                             thinBoxes.push(aThinBox);
                             
                             scene.add( aThinBox );
                             
-                            //materials.pop();
-                        //}                    
-                    //}
-                //}   
+                            materials.pop();
+                        }                    
+                    }
+                }   
                 
-                
+                /*
                 dummy = new THREE.Object3D();
 
                plane = new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshBasicMaterial({color:0xff0000}));
@@ -392,7 +401,11 @@
                 
                 //https://www.cnblogs.com/silent-stranger/p/6027266.html
                 //https://stackoverflow.com/questions/16319742/three-js-rotating-a-sphere-around-a-certain-axis
-
+                */
+                
+                
+                //Add obit controls
+                controls = new THREE.OrbitControls(camera, renderer.domElement);      
                 
                 //Add drag controls
                 var dragControls = new THREE.DragControls(thinBoxes, camera, renderer.domElement);
