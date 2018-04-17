@@ -359,29 +359,28 @@
                         if(squareArr[i*sColNum + j] == true){                            
                             
                             //set up unfolded view in 3D space
-                            var geometry = new THREE.BoxGeometry( 1, 1, 0.4 );
+                            var geometry = new THREE.BoxGeometry( 1, 1, 0.02 );
                             var texture = new THREE.TextureLoader().load( imgPath[6*i + 6*topRow + j + leftCol] );
                             var faceMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture, side: THREE.DoubleSide } );
                             var backMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, side: THREE.DoubleSide } );
 
                             var materials = [];
                             
-                            //materials: x+, x-, y+, y-, z+, z-. Why need push more backMaterial?
+                            //materials: x+, x-, y+, y-, z+, z-
                             materials.push( backMaterial ); materials.push( backMaterial ); materials.push( backMaterial );
                             materials.push( backMaterial ); materials.push( faceMaterial ); materials.push( backMaterial ); 
-                            materials.push( backMaterial );
-                            //materials.push( backMaterial ); materials.push( backMaterial );
+                            
                             
                                 
                             var aThinBox = new THREE.Mesh( geometry, materials );
                             
-                            aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0.2);
+                            aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0.01 );
                             
                             thinBoxes.push(aThinBox);
                             
                             scene.add( aThinBox );
                             
-                            materials.pop();
+                            
                         }                    
                     }
                 }   
