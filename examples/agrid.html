@@ -136,7 +136,24 @@
         var thinBoxes = new Array();
         
         
+        //3D space parameters
         var camera, scene, renderer, controls, dragControls; 
+        
+        
+        //Parameter for drag control
+        /////////////////////////////////////////////////////////////////
+        var positioningPlane = new THREE.Plane();
+        var raycaster = new THREE.Raycaster();
+
+        var mouse = new THREE.Vector2();
+        var dragStartPos = new THREE.Vector3();
+        var intersection = new THREE.Vector3();
+
+        var selectedObj = null;
+        /////////////////////////////////////////////////////////////////
+        
+        var selectedObjRow, selectedObjCol; //selected thin box's row and column number in squareArr
+        
         
         
         var imgPath = [ "textures/brucetest/car1.png", "textures/brucetest/car2.png", "textures/brucetest/car3.png", 
@@ -362,105 +379,53 @@
                             var geometry = new THREE.BoxGeometry( 1, 1, 0.02 );
                             var texture = new THREE.TextureLoader().load( imgPath[6*i + 6*topRow + j + leftCol] );
                             var faceMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture, side: THREE.DoubleSide } );
-                            var backMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, side: THREE.DoubleSide } );
+                            var backMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, side: THREE.DoubleSide, 
+                                                                             transparent: true, opacity: 0.5 } );
+                            
 
                             var materials = [];
                             
                             //materials: x+, x-, y+, y-, z+, z-
                             materials.push( backMaterial ); materials.push( backMaterial ); materials.push( backMaterial );
-                            materials.push( backMaterial ); materials.push( faceMaterial ); materials.push( backMaterial ); 
-                            
+                            materials.push( backMaterial ); materials.push( faceMaterial ); materials.push( backMaterial );                             
                             
                                 
                             var aThinBox = new THREE.Mesh( geometry, materials );
                             
-                            aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0.01 );
+                            aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0 );
                             
                             thinBoxes.push(aThinBox);
                             
-                            scene.add( aThinBox );
-                            
-                            
+                            scene.add( aThinBox );                     
                         }                    
                     }
-                }   
-                
-                /*
-                dummy = new THREE.Object3D();
-
-               plane = new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshBasicMaterial({color:0xff0000}));
-
-                  plane.position.set(50,0,0);
-
-                 dummy.add(plane);
-
-                 dummy.position.set(0,0,0);
-
-                 scene.add(dummy);
-                
-                //https://www.cnblogs.com/silent-stranger/p/6027266.html
-                //https://stackoverflow.com/questions/16319742/three-js-rotating-a-sphere-around-a-certain-axis
-                */
+                } 
                 
                 
                 //Add obit controls
-                controls = new THREE.OrbitControls(camera, renderer.domElement);      
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
                 
-                //Add drag controls
-                var dragControls = new THREE.DragControls(thinBoxes, camera, renderer.domElement);
                 
-                dragControls.addEventListener('dragstart', dragStartCallback );
+                //Folding the cube with reference to dragControl.js
+                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+                document.addEventListener( 'mouseup', onDocumentMouseCancel, false );
+                document.addEventListener( 'mouseleave', onDocumentMouseCancel, false );
                 
-                dragControls.addEventListener('dragend', dragEndCallback );
+                window.addEventListener( 'resize', onWindowResize, false );
                 
-                function dragStartCallback( event ) {
-                    
-                    controls.enabled = false;
-                    
-                    //event.object.material.color.setHex(0x000000);
+            
+                function onWindowResize() {
+
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+
+                    renderer.setSize( window.innerWidth, window.innerHeight );                
                 }
- 
-                function dragEndCallback(event) {
-                    
-                    controls.enabled = true;
-                }
-                
-                
-                /*
-
-                //sides
-                var geom = new THREE.PlaneGeometry(1,1);
-                var side0 = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({color: "white", wireframe: true}));
-                scene.add(side0);
-                
-                var side1Geom = new THREE.PlaneGeometry(1,1);
-                side1Geom.translate(-0.5,0,0);
-                var side1 = new THREE.Mesh(side1Geom, new THREE.MeshBasicMaterial({color: "white", wireframe: true}));
-                sides.push(side1);
-                
-                
-
-                var side2 = side1.clone(); sides.push(side2);
-                var side3 = side1.clone(); sides.push(side3);
-                var side4 = side1.clone(); sides.push(side4);
-                var side5 = side1.clone(); sides.push(side5);
-                side5.material = new THREE.MeshBasicMaterial({color: "blue", side: THREE.DoubleSide});
-                //var texture = new THREE.TextureLoader().load( "textures/brucetest/square-outline-textured.png" );
-                //side5.material = new THREE.MeshLambertMaterial( { color: 0xfeb74c, map: texture, side: THREE.DoubleSide } );
-               
-                // hierarchy
-                side1.position.set(-0.5,0,0); side0.add(side1);
-                side2.position.set(0,-0.5,0); side2.rotation.z = Math.PI / 2; side0.add(side2);
-                side3.position.set(0.5,0,0); side3.rotation.z = Math.PI; side0.add(side3);                
-                side4.position.set(-0.5,-0.5,0); side4.rotation.z = Math.PI / 2; side3.add(side4);                
-                side5.position.set(-0.5,0.5,0); side5.rotation.z = -Math.PI / 2; side4.add(side5);
-                
-
-                //document.getElementById("run").addEventListener("click", foldTheCube);
-                */
-
             }
             
+            
+            //TWEEN for animation, keep for reference
             /*
             function foldTheCube(){
                 var start = {value: 0};
@@ -480,6 +445,203 @@
                 })
                 .start();
             }*/
+            
+            
+            
+            /////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////////////////////////////
+            
+            function onDocumentMouseMove( event ) {
+
+                event.preventDefault();
+
+                mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+                mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+                raycaster.setFromCamera( mouse, camera );
+                
+                
+                if ( selectedObj ) {                    
+
+                    var test = raycaster.ray.intersectPlane( positioningPlane, intersection );
+                    
+                    if ( test && intersection.distanceTo(dragStartPos) > 0.2 ) {
+                        
+                        //current position: <intersection>, Drag start position: <dragStartPos>
+                        //current select thinbox: <selectedObj>, <selectedObjIndex> in thinBoxes
+
+                        var selectedObjIndex = thinBoxes.indexOf(selectedObj);
+
+                        if ( selectedObjIndex == -1) {
+                            alert ( "Selected object index = -1");
+                            return;
+                        }
+
+                        //change selectedObjIndex to selectedObjRow and selectedObjCol in squareArr
+                        outloop:
+                        for (i=0; i<sRowNum; i++){
+                            for (j=0; j<sColNum; j++){
+
+                                if(squareArr[i*sColNum + j] == true){                            
+
+                                    if (selectedObjIndex == 0) { 
+
+                                        selectedObjRow = i;
+                                        selectedObjCol = j; 
+
+                                        break outloop;
+
+                                    } else {
+
+                                        selectedObjIndex--;
+                                    }                                
+                                }                    
+                            }
+                        }
+
+                        //selectedObjIndex original position: (selectedObjCol-sColNum/2, sRowNum/2-selectedObjRow, 0)
+                        var cx = selectedObjCol-sColNum/2, cy = sRowNum/2-selectedObjRow, cz = 0;
+
+                        var ltPoint3 = new THREE.Vector3(cx-0.5, cy+0.5, 0);
+                        var rtPoint3 = new THREE.Vector3(cx+0.5, cy+0.5, 0);
+                        var lbPoint3 = new THREE.Vector3(cx-0.5, cy-0.5, 0);
+                        var rbPoint3 = new THREE.Vector3(cx+0.5, cy-0.5, 0);
+
+                        //Apply Matrix4 to get current location of the 4 points
+                        ltPoint3.applyMatrix4(selectedObj.matrix);
+                        rtPoint3.applyMatrix4(selectedObj.matrix);
+                        lbPoint3.applyMatrix4(selectedObj.matrix);
+                        rbPoint3.applyMatrix4(selectedObj.matrix);                        
+
+                        //Calculate which side the dragStartPos is nearest to, and get the originalPoint and rotateAxis
+                        var orignalPoint = ltPoint3.clone();
+                        var rotateAxis = rtPoint3.clone().sub(orignalPoint);
+
+                        var distanceSum = dragStartPos.distanceTo(ltPoint3) + dragStartPos.distanceTo(rtPoint3);
+
+                        var tempSum = dragStartPos.distanceTo(rtPoint3) + dragStartPos.distanceTo(rbPoint3);
+                        if ( tempSum < distanceSum ){
+                            distanceSum = tempSum;
+
+                            orignalPoint = rtPoint3.clone();
+                            rotateAxis = rbPoint3.clone().sub(orignalPoint);
+                        }
+
+                        tempSum = dragStartPos.distanceTo(rbPoint3) + dragStartPos.distanceTo(lbPoint3);
+                        if ( tempSum < distanceSum ){
+                            distanceSum = tempSum;
+
+                            orignalPoint = rbPoint3.clone();
+                            rotateAxis = lbPoint3.clone().sub(orignalPoint);
+                        }
+
+                        tempSum = dragStartPos.distanceTo(lbPoint3) + dragStartPos.distanceTo(ltPoint3);
+                        if ( tempSum < distanceSum ){
+                            orignalPoint = lbPoint3.clone();
+                            rotateAxis = ltPoint3.clone().sub(orignalPoint);
+                        }
+
+                        //Calculate if to rotate +90 degree or -90 degree
+                        //Construct a plane with 3 points, then get the normal of the plan
+                        var testPlane = new THREE.Plane().setFromCoplanarPoints(rbPoint3, lbPoint3, ltPoint3);
+                        var dragDirection = intersection.clone().sub(dragStartPos);
+                        var rotateAngle = 0;
+
+                        if ( testPlane.normal.dot(dragDirection) >=0 ) {
+                            //Rotate +90 degree
+                            rotateAngle = Math.PI / 2;
+                        }
+                        else{
+                            //Rotate -90 degree
+                            rotateAngle = - Math.PI / 2;
+                        }
+
+                        //Use dummy to rotate the objects
+                        //Reference
+                        //http://threejs.outsidelook.cn/examples/set-pivot/index.html                    
+                        //https://www.cnblogs.com/silent-stranger/p/6027266.html
+                        //https://stackoverflow.com/questions/16319742/three-js-rotating-a-sphere-around-a-certain-axis
+
+                        let dummy = new THREE.Object3D();
+
+                        dummy.position.copy( orignalPoint );
+                        selectedObj.position.sub( orignalPoint );
+
+                        scene.remove( selectedObj );                    
+                        dummy.add( selectedObj ); //For next step, to check if need to add other obj together to rotate
+                        scene.add( dummy );                        
+
+                        dummy.rotateOnWorldAxis( rotateAxis, rotateAngle );
+
+                        dummy.remove( selectedObj );
+                        scene.remove( dummy );
+                        scene.add ( selectedObj );
+
+
+                        //after rotation, release the selected object
+                        selectedObj = null;
+                    }
+                    
+                    return;
+                }
+                
+                //redundant?
+                //raycaster.setFromCamera( mouse, camera );
+
+                var intersects = raycaster.intersectObjects( thinBoxes );
+
+                if ( intersects.length > 0 ) {
+
+                    renderer.domElement.style.cursor = 'pointer';
+                    
+                } else {
+
+                    renderer.domElement.style.cursor = 'auto';
+                }
+
+            }
+            
+            
+
+            function onDocumentMouseDown( event ) {
+
+                event.preventDefault();
+
+                raycaster.setFromCamera( mouse, camera );
+
+                var intersects = raycaster.intersectObjects( thinBoxes );
+
+                if ( intersects.length > 0 ) {
+
+                    selectedObj = intersects[0].object;
+
+                    dragStartPos.copy( intersects[0].point );
+                    
+                    positioningPlane.setFromNormalAndCoplanarPoint( camera.getWorldDirection( positioningPlane.normal ), intersects[0].point );
+
+                    controls.enabled = false; //Stop orbit control
+                    
+                    renderer.domElement.style.cursor = 'move';
+                }
+            }
+            
+            
+
+            function onDocumentMouseCancel( event ) {
+
+                event.preventDefault();
+
+                selectedObj = null;
+                controls.enabled = true; //re-start orbit control
+                
+                renderer.domElement.style.cursor = 'auto';
+
+            } 
+            
+            /////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////////////////////////////
+            
+            
 
             // animate
             function animate() {
