@@ -46,6 +46,7 @@
     <script src="js/controls/OrbitControls.js"></script>
     <script src="js/libs/tween.min.js"></script>
     <script src="js/controls/DragControls.js"></script>
+    <script src="js/utils/SceneUtils.js"></script>
     
     <br>
     <p align="center"> Please click on the pics to select the layout of the unfolded cube </p>
@@ -500,18 +501,22 @@
                         }
 
                         //selectedObjIndex original position: (selectedObjCol-sColNum/2, sRowNum/2-selectedObjRow, 0)
-                        var cx = selectedObjCol-sColNum/2, cy = sRowNum/2-selectedObjRow, cz = 0;
+                        //var cx = selectedObjCol-sColNum/2, cy = sRowNum/2-selectedObjRow, cz = 0;
+                        //selectedObj.matrixWorld alreay record the position change of the object
+                        var cx = 0, cy = 0, cz = 0;
 
-                        var ltPoint3 = new THREE.Vector3(cx-0.5, cy+0.5, 0);
-                        var rtPoint3 = new THREE.Vector3(cx+0.5, cy+0.5, 0);
-                        var lbPoint3 = new THREE.Vector3(cx-0.5, cy-0.5, 0);
-                        var rbPoint3 = new THREE.Vector3(cx+0.5, cy-0.5, 0);
+                        
+                        var ltPoint3 = new THREE.Vector3(cx-0.5, cy+0.5, cz);
+                        var rtPoint3 = new THREE.Vector3(cx+0.5, cy+0.5, cz);
+                        var lbPoint3 = new THREE.Vector3(cx-0.5, cy-0.5, cz);
+                        var rbPoint3 = new THREE.Vector3(cx+0.5, cy-0.5, cz); 
+                        
 
                         //Apply Matrix4 to get current location of the 4 points
-                        ltPoint3.applyMatrix4(selectedObj.matrix);
-                        rtPoint3.applyMatrix4(selectedObj.matrix);
-                        lbPoint3.applyMatrix4(selectedObj.matrix);
-                        rbPoint3.applyMatrix4(selectedObj.matrix);                        
+                        ltPoint3.applyMatrix4(selectedObj.matrixWorld);
+                        rtPoint3.applyMatrix4(selectedObj.matrixWorld);
+                        lbPoint3.applyMatrix4(selectedObj.matrixWorld);
+                        rbPoint3.applyMatrix4(selectedObj.matrixWorld);                        
 
                         //Calculate which side the dragStartPos is nearest to, and get the originalPoint and rotateAxis
                         var orignalPoint = ltPoint3.clone();
@@ -565,17 +570,12 @@
                         let dummy = new THREE.Object3D();
 
                         dummy.position.copy( orignalPoint );
-                        selectedObj.position.sub( orignalPoint );
-
-                        scene.remove( selectedObj );                    
-                        dummy.add( selectedObj ); //For next step, to check if need to add other obj together to rotate
-                        scene.add( dummy );                        
-
+                        
+                        THREE.SceneUtils.attach( selectedObj, scene, dummy ); //For next step, to check if need to add other obj together to rotate
+                        
                         dummy.rotateOnWorldAxis( rotateAxis, rotateAngle );
 
-                        dummy.remove( selectedObj );
-                        scene.remove( dummy );
-                        scene.add ( selectedObj );
+                        THREE.SceneUtils.detach( selectedObj, dummy, scene );
 
 
                         //after rotation, release the selected object
@@ -653,7 +653,12 @@
             function render() {
               renderer.render(scene, camera);
             }
-        }        
+        }
+        
+        //reference:
+        //https://threejs.org/docs/index.html#examples/utils/SceneUtils
+        //.createMultiMaterialObject ( geometry : Geometry, materials : Array ) : Group
+        //This is mostly useful for objects that need both a material and a wireframe implementation.
     
     </script>
 
