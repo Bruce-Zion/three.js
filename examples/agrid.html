@@ -519,8 +519,8 @@
                         rbPoint3.applyMatrix4(selectedObj.matrixWorld);                        
 
                         //Calculate which side the dragStartPos is nearest to, and get the originalPoint and rotateAxis
-                        var orignalPoint = ltPoint3.clone();
-                        var rotateAxis = rtPoint3.clone().sub(orignalPoint);
+                        var orignalPoint = rbPoint3.clone();
+                        var rotateAxis = lbPoint3.clone().sub(orignalPoint);
 
                         var distanceSum = dragStartPos.distanceTo(ltPoint3) + dragStartPos.distanceTo(rtPoint3);
 
@@ -528,22 +528,22 @@
                         if ( tempSum < distanceSum ){
                             distanceSum = tempSum;
 
-                            orignalPoint = rtPoint3.clone();
-                            rotateAxis = rbPoint3.clone().sub(orignalPoint);
+                            orignalPoint = lbPoint3.clone();
+                            rotateAxis = ltPoint3.clone().sub(orignalPoint);
                         }
 
                         tempSum = dragStartPos.distanceTo(rbPoint3) + dragStartPos.distanceTo(lbPoint3);
                         if ( tempSum < distanceSum ){
                             distanceSum = tempSum;
 
-                            orignalPoint = rbPoint3.clone();
-                            rotateAxis = lbPoint3.clone().sub(orignalPoint);
+                            orignalPoint = ltPoint3.clone();
+                            rotateAxis = rtPoint3.clone().sub(orignalPoint);
                         }
 
                         tempSum = dragStartPos.distanceTo(lbPoint3) + dragStartPos.distanceTo(ltPoint3);
                         if ( tempSum < distanceSum ){
-                            orignalPoint = lbPoint3.clone();
-                            rotateAxis = ltPoint3.clone().sub(orignalPoint);
+                            orignalPoint = rtPoint3.clone();
+                            rotateAxis = rbPoint3.clone().sub(orignalPoint);
                         }
 
                         //Calculate if to rotate +90 degree or -90 degree
@@ -573,7 +573,8 @@
                         
                         THREE.SceneUtils.attach( selectedObj, scene, dummy ); //For next step, to check if need to add other obj together to rotate
                         
-                        dummy.rotateOnWorldAxis( rotateAxis, rotateAngle );
+                        //dummy.rotateOnAxis( rotateAxis, rotateAngle );
+                        dummy.rotateX ( rotateAngle );
 
                         THREE.SceneUtils.detach( selectedObj, dummy, scene );
 
