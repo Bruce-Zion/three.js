@@ -151,11 +151,8 @@
         var intersection = new THREE.Vector3();
 
         var selectedObj = null;
-        /////////////////////////////////////////////////////////////////
-        
-        var selectedObjRow, selectedObjCol; //selected thin box's row and column number in squareArr
-        
-        
+                
+        var objConnectedness = [ false, false, false, false, false, false ];
         
         var imgPath = [ "textures/brucetest/car1.png", "textures/brucetest/car2.png", "textures/brucetest/car3.png", 
                         "textures/brucetest/car4.png", "textures/brucetest/car5.png", "textures/brucetest/car6.png", 
@@ -426,29 +423,6 @@
             }
             
             
-            //TWEEN for animation, keep for reference
-            /*
-            function foldTheCube(){
-                var start = {value: 0};
-                var finish = {value: Math.PI / 2};
-                var angle = 0;
-                new TWEEN
-                .Tween(start)
-                .to(finish, 3000)
-                .easing(TWEEN.Easing.Sinusoidal.InOut)
-                .onUpdate(function(){
-                    angle = this.value;
-                    sides[0].rotation.y = angle;
-                    sides[1].rotation.x = -angle;
-                    sides[2].rotation.y = -angle;
-                    sides[3].rotation.x = -angle;
-                    sides[4].rotation.x = angle;
-                })
-                .start();
-            }*/
-            
-            
-            
             /////////////////////////////////////////////////////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////////////////
             
@@ -469,39 +443,7 @@
                     if ( test && intersection.distanceTo(dragStartPos) > 0.2 ) {
                         
                         //current position: <intersection>, Drag start position: <dragStartPos>
-                        //current select thinbox: <selectedObj>, <selectedObjIndex> in thinBoxes
-
-                        var selectedObjIndex = thinBoxes.indexOf(selectedObj);
-
-                        if ( selectedObjIndex == -1) {
-                            alert ( "Selected object index = -1");
-                            return;
-                        }
-
-                        //change selectedObjIndex to selectedObjRow and selectedObjCol in squareArr
-                        outloop:
-                        for (i=0; i<sRowNum; i++){
-                            for (j=0; j<sColNum; j++){
-
-                                if(squareArr[i*sColNum + j] == true){                            
-
-                                    if (selectedObjIndex == 0) { 
-
-                                        selectedObjRow = i;
-                                        selectedObjCol = j; 
-
-                                        break outloop;
-
-                                    } else {
-
-                                        selectedObjIndex--;
-                                    }                                
-                                }                    
-                            }
-                        }
-
-                        //selectedObjIndex original position: (selectedObjCol-sColNum/2, sRowNum/2-selectedObjRow, 0)
-                        //var cx = selectedObjCol-sColNum/2, cy = sRowNum/2-selectedObjRow, cz = 0;
+                        //current select thinbox: <selectedObj>
                         //selectedObj.matrixWorld alreay record the position change of the object
                         var cx = 0, cy = 0, cz = 0;
 
@@ -567,30 +509,74 @@
                         //https://www.cnblogs.com/silent-stranger/p/6027266.html
                         //https://stackoverflow.com/questions/16319742/three-js-rotating-a-sphere-around-a-certain-axis
 
-                        let dummy = new THREE.Object3D();
+                        var dummy = new THREE.Object3D();
 
                         dummy.position.copy( orignalPoint );
                         
                         dummy.updateMatrixWorld(true);
                         
-                        THREE.SceneUtils.attach( selectedObj, scene, dummy ); //For next step, to check if need to add other obj together to rotate
+                        THREE.SceneUtils.attach( selectedObj, scene, dummy ); 
                         
                         dummy.rotateOnAxis( rotateAxis, rotateAngle );
                                                 
                         dummy.updateMatrixWorld(true);
 
                         THREE.SceneUtils.detach( selectedObj, dummy, scene );
+                        
+                        
+                        var selectedObjIndex = thinBoxes.indexOf(selectedObj);
+                        
+                        //Check the connectedness with other images
+                        var connectedNum = checkAllConnectedness( selectedObjIndex );
+                        
+                        
+                        if ( connectedNum == 1 ){
+                            
+                            //if only selected is orphaned, revert to the initial state
+                            dummy.updateMatrixWorld(true);
+                        
+                            THREE.SceneUtils.attach( selectedObj, scene, dummy ); 
 
-                        //after rotation, release the selected object
+                            dummy.rotateOnAxis( rotateAxis, -rotateAngle );
+
+                            dummy.updateMatrixWorld(true);
+
+                            THREE.SceneUtils.detach( selectedObj, dummy, scene );
+                            
+                        }else if ( connectedNum > 1 && connectedNum < objConnectedness.length ){
+                            
+                            //if rotation cause not all images connected, need to find more to rotate together
+                            dummy.updateMatrixWorld(true);
+                            
+                            var i = 0;
+                            
+                            for ( i=0; i<objConnectedness.length; i++){
+                                if ( i != selectedObjIndex && objConnectedness[i] == false){
+                                    
+                                    THREE.SceneUtils.attach( thinBoxes[i], scene, dummy );
+                                }                                
+                            }                             
+
+                            dummy.rotateOnAxis( rotateAxis, rotateAngle );
+
+                            dummy.updateMatrixWorld(true);
+                            
+                            for ( i=0; i<objConnectedness.length; i++){
+                                if ( i != selectedObjIndex && objConnectedness[i] == false){
+                                    
+                                    THREE.SceneUtils.detach( thinBoxes[i], dummy, scene );
+                                }                                
+                            }                            
+                        }                        
+                        
+                        //Release the selected object
                         selectedObj = null;
                     }
                     
                     return;
                 }
                 
-                //redundant?
-                //raycaster.setFromCamera( mouse, camera );
-
+ 
                 var intersects = raycaster.intersectObjects( thinBoxes );
 
                 if ( intersects.length > 0 ) {
@@ -648,20 +634,130 @@
 
             // animate
             function animate() {
+                
               requestAnimationFrame(animate);
-              //TWEEN.update();
+              
               render();
             }
 
             function render() {
+                
               renderer.render(scene, camera);
             }
         }
         
-        //reference:
-        //https://threejs.org/docs/index.html#examples/utils/SceneUtils
-        //.createMultiMaterialObject ( geometry : Geometry, materials : Array ) : Group
-        //This is mostly useful for objects that need both a material and a wireframe implementation.
+        
+        //Check the connectedness of the thin boxes
+        function checkAllConnectedness( index ){
+            
+            if( index < 0 || index >= thinBoxes.length ){
+                
+                alert("Something wrong with the index");
+                return -1;
+            }
+            
+            objConnectedness.fill( false );
+            objConnectedness[index] = true;
+            
+            if (checkObjConnectedness( index ) == false){
+                
+                return 1; //overlap happened
+            } 
+            
+            var connectedNum = 0;
+            
+            for ( var i = 0; i < objConnectedness.length; i++){
+                if ( objConnectedness[i] == true )
+                    connectedNum++;
+            }
+            
+            return connectedNum;
+        }
+        
+        
+        function checkObjConnectedness( i ){
+            
+            for ( var j = 0; j < thinBoxes.length; j++){
+                
+                var temp = 0;
+                
+                if (j != i){
+                    
+                    temp = checkTwoConnectedness(thinBoxes[i], thinBoxes[j]);
+                    
+                    if ( temp == -1){
+                    
+                        //overlapped
+                        return false;
+                    } 
+                    else if( objConnectedness[j] != true && temp == 1 ){
+
+                        objConnectedness[j] = true;
+
+                        if ( checkObjConnectedness(j) == false){
+
+                            return false; //overlapped
+                        }
+                    }
+                }            
+            }
+            
+            return true;
+        }
+        
+        
+        //Check if the two thin boxes are connected
+        function checkTwoConnectedness( obj1, obj2 ){
+            
+            //Apply Matrix4 to get the current coordinations
+            var obj1Pos = new THREE.Vector3( 0, 0, 0 ).applyMatrix4(obj1.matrixWorld);
+            var obj2Pos = new THREE.Vector3( 0, 0, 0 ).applyMatrix4(obj2.matrixWorld);
+            
+            var rb1Pos = new THREE.Vector3(  0.5, -0.5, 0 ).applyMatrix4(obj1.matrixWorld);
+            var rb2Pos = new THREE.Vector3(  0.5, -0.5, 0 ).applyMatrix4(obj2.matrixWorld);
+            
+            var lb1Pos = new THREE.Vector3( -0.5, -0.5, 0 ).applyMatrix4(obj1.matrixWorld);
+            var lb2Pos = new THREE.Vector3( -0.5, -0.5, 0 ).applyMatrix4(obj2.matrixWorld);
+            
+            var lt1Pos = new THREE.Vector3( -0.5,  0.5, 0 ).applyMatrix4(obj1.matrixWorld);
+            var lt2Pos = new THREE.Vector3( -0.5,  0.5, 0 ).applyMatrix4(obj2.matrixWorld);
+                                            
+
+            //Calculate the normal of the two thin boxes
+            var test1Plane = new THREE.Plane().setFromCoplanarPoints(rb1Pos, lb1Pos, lt1Pos);
+            var test2Plane = new THREE.Plane().setFromCoplanarPoints(rb2Pos, lb2Pos, lt2Pos);
+                        
+            if ( Math.abs( test1Plane.normal.dot( test2Plane.normal ) ) > 0.1 ) {  
+                
+                if ( Math.abs( test1Plane.normal.dot( obj1Pos.clone().sub( obj2Pos ) ) ) > 0.1 ){ 
+                    
+                    return 0; //Not connected: two objs are parallel
+                }
+                else if ( obj1Pos.distanceTo( obj2Pos ) < 0.1 ){ 
+                    return -1; //Two objs are overlapped
+                }
+                else if ( obj1Pos.distanceTo( obj2Pos ) < 1.1 ){ //Two objs are in the same plane and connected
+                    
+                    return 1; //Connected in the same plane 
+                }
+                else{
+                    
+                    return 0; //Disconnected in the same plane
+                }
+            }
+            else{
+                
+                if ( obj1Pos.distanceTo( obj2Pos ) < 0.71 ){ //0.5 multiply the square root of 2 
+                    
+                    return 1; //Connected in vertical positions
+                }
+                else{
+                    
+                    return 0; //Disconnected in vertical positions
+                }
+            }
+        }
+        
     
     </script>
 
