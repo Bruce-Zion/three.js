@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    
+<head>
+    <title>Cube folding and expanding by LiYajun</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    
+    <style>
+        
+        body {
+            font: 16px simsun Arial;
+            background:#fff
+            margin: 0px;
+            overflow: hidden;
+        }
+        
+        img {
+            border: 1px solid #ccc;
+            opacity: 0.3;
+            height: 80px;
+            width: 80px;
+            display:block;
+        }
+        
+        img:hover{
+            opacity: 0.8;
+        }
+        
+        table, tr, td {
+            padding: 0px;            
+            border-spacing:0;
+        }
+       
+    </style>
+    
+</head>
+    
+<body>
+    
+    <script src="../build/three.js"></script>
+
+    <script src="js/libs/dat.gui.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/libs/tween.min.js"></script>
+    <script src="js/controls/DragControls.js"></script>
+    <script src="js/utils/SceneUtils.js"></script>
+    
+    <br>
+    <p align="center"> Please click on the pics to select the layout of the unfolded cube </p>
+    <br>
+        
+    <table border="0" align="center">
+        <tr>
+            <td><img src="textures/brucetest/car1.png" onclick="selectImg(0, this)"></td>
+            <td><img src="textures/brucetest/car2.png" onclick="selectImg(1, this)"></td>
+            <td><img src="textures/brucetest/car3.png" onclick="selectImg(2, this)"></td>
+            <td><img src="textures/brucetest/car4.png" onclick="selectImg(3, this)"></td>
+            <td><img src="textures/brucetest/car5.png" onclick="selectImg(4, this)"></td>
+            <td><img src="textures/brucetest/car6.png" onclick="selectImg(5, this)"></td>            
+        </tr>
+            
+        <tr>
+            <td><img src="textures/brucetest/car7.png" onclick="selectImg(6, this)"></td>
+            <td><img src="textures/brucetest/car8.png" onclick="selectImg(7, this)"></td>
+            <td><img src="textures/brucetest/car9.png" onclick="selectImg(8, this)"></td>
+            <td><img src="textures/brucetest/car10.png" onclick="selectImg(9, this)"></td>
+            <td><img src="textures/brucetest/car11.png" onclick="selectImg(10, this)"></td>
+            <td><img src="textures/brucetest/car12.png" onclick="selectImg(11, this)"></td>
+        </tr>
+        
+        <tr>
+            <td><img src="textures/brucetest/gem1.png" onclick="selectImg(12, this)"></td>
+            <td><img src="textures/brucetest/gem2.png" onclick="selectImg(13, this)"></td>
+            <td><img src="textures/brucetest/gem3.png" onclick="selectImg(14, this)"></td>
+            <td><img src="textures/brucetest/gem4.png" onclick="selectImg(15, this)"></td>
+            <td><img src="textures/brucetest/gem5.png" onclick="selectImg(16, this)"></td>
+            <td><img src="textures/brucetest/gem6.png" onclick="selectImg(17, this)"></td>            
+        </tr>
+            
+        <tr>
+            <td><img src="textures/brucetest/gem7.png" onclick="selectImg(18, this)"></td>
+            <td><img src="textures/brucetest/gem8.png" onclick="selectImg(19, this)"></td>
+            <td><img src="textures/brucetest/gem9.png" onclick="selectImg(20, this)"></td>
+            <td><img src="textures/brucetest/gem10.png" onclick="selectImg(21, this)"></td>
+            <td><img src="textures/brucetest/gem11.png" onclick="selectImg(22, this)"></td>
+            <td><img src="textures/brucetest/gem12.png" onclick="selectImg(23, this)"></td>
+        </tr>
+        
+        <tr>
+            <td><img src="textures/brucetest/sign1.png" onclick="selectImg(24, this)"></td>
+            <td><img src="textures/brucetest/sign2.png" onclick="selectImg(25, this)"></td>
+            <td><img src="textures/brucetest/sign3.png" onclick="selectImg(26, this)"></td>
+            <td><img src="textures/brucetest/sign4.png" onclick="selectImg(27, this)"></td>
+            <td><img src="textures/brucetest/sign5.png" onclick="selectImg(28, this)"></td>
+            <td><img src="textures/brucetest/sign6.png" onclick="selectImg(29, this)"></td>            
+        </tr>
+            
+        <tr>
+            <td><img src="textures/brucetest/sign7.png" onclick="selectImg(30, this)"></td>
+            <td><img src="textures/brucetest/sign8.png" onclick="selectImg(31, this)"></td>
+            <td><img src="textures/brucetest/sign9.png" onclick="selectImg(32, this)"></td>
+            <td><img src="textures/brucetest/sign10.png" onclick="selectImg(33, this)"></td>
+            <td><img src="textures/brucetest/sign11.png" onclick="selectImg(34, this)"></td>
+            <td><img src="textures/brucetest/sign12.png" onclick="selectImg(35, this)"></td>
+        </tr>
+    </table>  
+    
+    <br>
+    <p align="center"><a href="#" onclick="cubeOperation()">GO 3D and start folding</a></p>
+    
+    
+    
+    <script>
+        
+        /*To be improved
+        1. Rotation logic overhaul
+            1.1 A thin box cannot rotate around a side without an adjacent thin box
+            1.2 If all the connected (directly or indirectly) thin boxes by the sides other than the rotation side are not the all thin boxes, 
+                then these thin boxes should rotate together.
+            1.3 No.1 statement above has the priority over No.2 statement.
+        2. Code optimization
+            2.1 Img table
+            2.2 Javascript consts
+        3. New feature
+            3.1 Double click to change the images
+        */
+        
+        //imgArr is used to store the selection status of the images
+        var imgArr = new Array(36);
+        imgArr.fill(false); 
+        
+        //record the selected image number
+        var selectedImgNum = 0;
+        
+        //trimmed image array to square array
+        var sColNum;
+        var sRowNum;
+        var squareArr = new Array();
+        
+        //Record how image array is trimmed
+        var leftCol = 0;
+        var rightCol = 5;
+        var topRow = 0;
+        var bottomRow = 5;
+        
+        //Thin boxes to represent each face of the cube
+        var thinBoxes = new Array();
+        
+        
+        //3D space parameters
+        var camera, scene, renderer, controls, dragControls; 
+        
+        
+        //Parameter for drag control
+        /////////////////////////////////////////////////////////////////
+        var positioningPlane = new THREE.Plane();
+        var raycaster = new THREE.Raycaster();
+
+        var mouse = new THREE.Vector2();
+        var dragStartPos = new THREE.Vector3();
+        var intersection = new THREE.Vector3();
+
+        var selectedObj = null;
+                
+        var objConnectedness = [ false, false, false, false, false, false ];
+        
+        var imgPath = [ "textures/brucetest/car1.png", "textures/brucetest/car2.png", "textures/brucetest/car3.png", 
+                        "textures/brucetest/car4.png", "textures/brucetest/car5.png", "textures/brucetest/car6.png", 
+                        "textures/brucetest/car7.png", "textures/brucetest/car8.png", "textures/brucetest/car9.png",
+                        "textures/brucetest/car10.png", "textures/brucetest/car11.png", "textures/brucetest/car12.png",
+                        "textures/brucetest/gem1.png", "textures/brucetest/gem2.png", "textures/brucetest/gem3.png", 
+                        "textures/brucetest/gem4.png", "textures/brucetest/gem5.png", "textures/brucetest/gem6.png", 
+                        "textures/brucetest/gem7.png", "textures/brucetest/gem8.png", "textures/brucetest/gem9.png",
+                        "textures/brucetest/gem10.png", "textures/brucetest/gem11.png", "textures/brucetest/gem12.png",
+                        "textures/brucetest/sign1.png", "textures/brucetest/sign2.png", "textures/brucetest/sign3.png", 
+                        "textures/brucetest/sign4.png", "textures/brucetest/sign5.png", "textures/brucetest/sign6.png", 
+                        "textures/brucetest/sign7.png", "textures/brucetest/sign8.png", "textures/brucetest/sign9.png",
+                        "textures/brucetest/sign10.png", "textures/brucetest/sign11.png", "textures/brucetest/sign12.png"
+                      ];
+        
+        
+        
+        function selectImg( imgNum, img ){
+            if ( imgArr[imgNum] == false ){
+                
+                //check if more than 6 images are selected
+                if ( selectedImgNum == 6 ){
+                    alert("No more than 6 can be selected.");
+                    return;
+                }
+                
+                var haveAdj = false;
+                
+                //check if current imag is adjacent to previously selected images
+                if ( imgNum >= 6 && imgArr[imgNum-6] == true){
+                    haveAdj = true;
+                }
+                if ( imgNum >= 1 && imgArr[imgNum-1] == true){
+                    haveAdj = true;
+                }
+                if ( imgNum < 35 && imgArr[imgNum+1] == true){
+                    haveAdj = true;
+                }
+                if ( imgNum < 30 && imgArr[imgNum+6] == true){
+                    haveAdj = true;
+                }
+                
+                if ( haveAdj == false && selectedImgNum > 0 ){
+                    alert("Please select a square adjacent to the previously selected ones.");
+                    return;
+                }
+                
+                img.style.opacity = 1;
+                img.style.border = "1px solid #f00";
+                imgArr[imgNum] = true;
+                selectedImgNum += 1;
+                
+            }else{
+                var adjNum = 0;
+                
+                if ( imgNum >= 6 && imgArr[imgNum-6] == true){
+                    adjNum += 1;
+                }
+                if ( imgNum >= 1 && imgArr[imgNum-1] == true){
+                    adjNum += 1;
+                }
+                if ( imgNum < 35 && imgArr[imgNum+1] == true){
+                    adjNum += 1;
+                }
+                if ( imgNum < 30 && imgArr[imgNum+6] == true){
+                    adjNum += 1;
+                }
+                
+                if ( adjNum > 1 ){
+                    alert("Only the images with one adjacent can be de-selected.");
+                    return;
+                }
+                
+                img.style.opacity = 0.3;
+                img.style.border = "1px solid #ccc";
+                imgArr[imgNum] = false;
+                selectedImgNum -= 1;                
+            }
+        }
+        
+        
+        //Get the minimum rectangle that contains the selected images
+        function getSquareArray(){               
+            
+            var i, j;
+            
+            //check if row is blank from top to bottom
+            for (i = 0; i < 6; i++){
+                if ( (imgArr[i*6] || imgArr[i*6+1] || imgArr[i*6+2] || imgArr[i*6+3] || imgArr[i*6+4] || imgArr[i*6+5]) == false){
+                    topRow ++;
+                }
+                else{
+                    break;
+                }                        
+            }
+            //check if row is blank from bottom to top
+            for (i = 5; i >= 0; i--){
+                if ( (imgArr[i*6] || imgArr[i*6+1] || imgArr[i*6+2] || imgArr[i*6+3] || imgArr[i*6+4] || imgArr[i*6+5]) == false){
+                    bottomRow --;
+                }
+                else{
+                    break;
+                }                        
+            }
+            //check if column is blank from left to right
+            for (i = 0; i < 6; i++){
+                if ( (imgArr[i] || imgArr[i+6] || imgArr[i+12] || imgArr[i+18] || imgArr[i+24] || imgArr[i+30]) == false){
+                    leftCol ++;
+                }
+                else{
+                    break;
+                }                        
+            }
+            
+            for (i = 5; i >= 0; i--){
+                if ( (imgArr[i] || imgArr[i+6] || imgArr[i+12] || imgArr[i+18] || imgArr[i+24] || imgArr[i+30]) == false){
+                    rightCol --;
+                }
+                else{
+                    break;
+                }                        
+            }
+            
+            sColNum = rightCol - leftCol + 1;
+            sRowNum = bottomRow - topRow + 1;
+            
+            for (i=0; i<sRowNum; i++){
+                for (j=0; j<sColNum; j++){
+                    
+                    if(imgArr[topRow*6 + i*6 + leftCol +j] == true){
+                        squareArr.push(true);
+                    }
+                    else{
+                        squareArr.push(false);
+                    }
+                }
+            }
+            
+            //check if 6 squares
+            var selectedSNum = 0;
+            
+            for (i=0; i<sRowNum; i++){
+                for (j=0; j<sColNum; j++){
+                    
+                    if(squareArr[i*sColNum + j] == true){
+                        selectedSNum ++;
+                    }                    
+                }
+            }
+            
+            if (selectedSNum != 6){
+                alert("Internal error, selected square number is not 6.");
+            }
+                
+        }      
+        
+        
+        
+        //Start the 3D world
+        //////////////////////////////////////////////////////////////////////////////////////
+        function cubeOperation(){            
+            
+            if (selectedImgNum != 6){
+                alert("Please select 6 squares before going 3D.");
+                return;
+            }
+            
+            getSquareArray();
+            
+            init();
+            animate();
+
+            function init() {
+
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(105, window.innerWidth / window.innerHeight, 1, 1000);
+                camera.position.set(0, 0.5, 1).setLength(5);
+
+                // Grid
+                var gridHelper = new THREE.GridHelper( 10, 10 );
+                scene.add(gridHelper);
+
+                renderer = new THREE.WebGLRenderer({antialias: true});
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setClearColor(0xc0c0c0);
+                
+                
+                // Lights
+				ambientLight = new THREE.AmbientLight( 0xf0f0f0 );
+				scene.add( ambientLight );
+                                
+                
+                //Replace the contents of current page with WebGLRender
+                while (document.body.firstChild) {
+                    document.body.removeChild(document.body.firstChild);                    
+                }
+                document.body.style.margin = 0;
+                document.body.appendChild(renderer.domElement); 
+                                
+                
+                for (i=0; i<sRowNum; i++){
+                    for (j=0; j<sColNum; j++){
+
+                        if(squareArr[i*sColNum + j] == true){                            
+                            
+                            //set up unfolded view in 3D space
+                            var geometry = new THREE.BoxGeometry( 1, 1, 0.02 );
+                            var texture = new THREE.TextureLoader().load( imgPath[6*i + 6*topRow + j + leftCol] );
+                            var faceMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture, side: THREE.DoubleSide } );
+                            var backMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, side: THREE.DoubleSide, 
+                                                                             transparent: true, opacity: 0.5 } );
+                            
+
+                            var materials = [];
+                            
+                            //materials: x+, x-, y+, y-, z+, z-
+                            materials.push( backMaterial ); materials.push( backMaterial ); materials.push( backMaterial );
+                            materials.push( backMaterial ); materials.push( faceMaterial ); materials.push( backMaterial );                             
+                            
+                                
+                            var aThinBox = new THREE.Mesh( geometry, materials );
+                            
+                            aThinBox.position.set(j-sColNum/2, sRowNum/2-i, 0 );
+                            
+                            thinBoxes.push(aThinBox);
+                            
+                            scene.add( aThinBox );                     
+                        }                    
+                    }
+                } 
+                
+                
+                //Add obit controls
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                
+                
+                //Folding the cube with reference to dragControl.js
+                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+                document.addEventListener( 'mouseup', onDocumentMouseCancel, false );
+                document.addEventListener( 'mouseleave', onDocumentMouseCancel, false );
+                
+                window.addEventListener( 'resize', onWindowResize, false );
+                
+            
+                function onWindowResize() {
+
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+
+                    renderer.setSize( window.innerWidth, window.innerHeight );                
+                }
+            }
+            
+            
+            /////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////////////////////////////
+            
+            function onDocumentMouseMove( event ) {
+
+                event.preventDefault();
+
+                mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+                mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+                raycaster.setFromCamera( mouse, camera );
+                
+                
+                if ( selectedObj ) {                    
+
+                    var test = raycaster.ray.intersectPlane( positioningPlane, intersection );
+                    
+                    if ( test && intersection.distanceTo(dragStartPos) > 0.2 ) {
+                        
+                        //current position: <intersection>, Drag start position: <dragStartPos>
+                        //current select thinbox: <selectedObj>
+                        //selectedObj.matrixWorld alreay record the position change of the object
+                        var cx = 0, cy = 0, cz = 0;
+
+                        
+                        var ltPoint3 = new THREE.Vector3(cx-0.5, cy+0.5, cz);
+                        var rtPoint3 = new THREE.Vector3(cx+0.5, cy+0.5, cz);
+                        var lbPoint3 = new THREE.Vector3(cx-0.5, cy-0.5, cz);
+                        var rbPoint3 = new THREE.Vector3(cx+0.5, cy-0.5, cz); 
+                        
+
+                        //Apply Matrix4 to get current location of the 4 points
+                        ltPoint3.applyMatrix4(selectedObj.matrixWorld);
+                        rtPoint3.applyMatrix4(selectedObj.matrixWorld);
+                        lbPoint3.applyMatrix4(selectedObj.matrixWorld);
+                        rbPoint3.applyMatrix4(selectedObj.matrixWorld);                        
+
+                        //Calculate which side the dragStartPos is nearest to, and get the originalPoint and rotateAxis
+                        var orignalPoint = rbPoint3.clone();
+                        var rotateAxis = lbPoint3.clone().sub(orignalPoint);
+
+                        var distanceSum = dragStartPos.distanceTo(ltPoint3) + dragStartPos.distanceTo(rtPoint3);
+
+                        var tempSum = dragStartPos.distanceTo(rtPoint3) + dragStartPos.distanceTo(rbPoint3);
+                        if ( tempSum < distanceSum ){
+                            distanceSum = tempSum;
+
+                            orignalPoint = lbPoint3.clone();
+                            rotateAxis = ltPoint3.clone().sub(orignalPoint);
+                        }
+
+                        tempSum = dragStartPos.distanceTo(rbPoint3) + dragStartPos.distanceTo(lbPoint3);
+                        if ( tempSum < distanceSum ){
+                            distanceSum = tempSum;
+
+                            orignalPoint = ltPoint3.clone();
+                            rotateAxis = rtPoint3.clone().sub(orignalPoint);
+                        }
+
+                        tempSum = dragStartPos.distanceTo(lbPoint3) + dragStartPos.distanceTo(ltPoint3);
+                        if ( tempSum < distanceSum ){
+                            orignalPoint = rtPoint3.clone();
+                            rotateAxis = rbPoint3.clone().sub(orignalPoint);
+                        }
+
+                        //Calculate if to rotate +90 degree or -90 degree
+                        //Construct a plane with 3 points, then get the normal of the plan
+                        var testPlane = new THREE.Plane().setFromCoplanarPoints(rbPoint3, lbPoint3, ltPoint3);
+                        var dragDirection = intersection.clone().sub(dragStartPos);
+                        var rotateAngle = 0;
+
+                        if ( testPlane.normal.dot(dragDirection) >=0 ) {
+                            //Rotate +90 degree
+                            rotateAngle = Math.PI / 2;
+                        }
+                        else{
+                            //Rotate -90 degree
+                            rotateAngle = - Math.PI / 2;
+                        }
+
+                        //Use dummy to rotate the objects
+                        //Reference
+                        //http://threejs.outsidelook.cn/examples/set-pivot/index.html                    
+                        //https://www.cnblogs.com/silent-stranger/p/6027266.html
+                        //https://stackoverflow.com/questions/16319742/three-js-rotating-a-sphere-around-a-certain-axis
+
+                        var dummy = new THREE.Object3D();
+
+                        dummy.position.copy( orignalPoint );
+                        
+                        dummy.updateMatrixWorld(true);
+                        
+                        THREE.SceneUtils.attach( selectedObj, scene, dummy ); 
+                        
+                        dummy.rotateOnAxis( rotateAxis, rotateAngle );
+                                                
+                        dummy.updateMatrixWorld(true);
+
+                        THREE.SceneUtils.detach( selectedObj, dummy, scene );
+                        
+                        
+                        var selectedObjIndex = thinBoxes.indexOf(selectedObj);
+                        
+                        //Check the connectedness with other images
+                        var connectedNum = checkAllConnectedness( selectedObjIndex );
+                        
+                        
+                        if ( connectedNum == 1 ){
+                            
+                            //if only selected is orphaned, revert to the initial state
+                            dummy.updateMatrixWorld(true);
+                        
+                            THREE.SceneUtils.attach( selectedObj, scene, dummy ); 
+
+                            dummy.rotateOnAxis( rotateAxis, -rotateAngle );
+
+                            dummy.updateMatrixWorld(true);
+
+                            THREE.SceneUtils.detach( selectedObj, dummy, scene );
+                            
+                        }else if ( connectedNum > 1 && connectedNum < objConnectedness.length ){
+                            
+                            //if rotation cause not all images connected, need to find more to rotate together
+                            dummy.updateMatrixWorld(true);
+                            
+                            var i = 0;
+                            
+                            for ( i=0; i<objConnectedness.length; i++){
+                                if ( i != selectedObjIndex && objConnectedness[i] == false){
+                                    
+                                    THREE.SceneUtils.attach( thinBoxes[i], scene, dummy );
+                                }                                
+                            }                             
+
+                            dummy.rotateOnAxis( rotateAxis, rotateAngle );
+
+                            dummy.updateMatrixWorld(true);
+                            
+                            for ( i=0; i<objConnectedness.length; i++){
+                                if ( i != selectedObjIndex && objConnectedness[i] == false){
+                                    
+                                    THREE.SceneUtils.detach( thinBoxes[i], dummy, scene );
+                                }                                
+                            }                            
+                        }                        
+                        
+                        //Release the selected object
+                        selectedObj = null;
+                    }
+                    
+                    return;
+                }
+                
+ 
+                var intersects = raycaster.intersectObjects( thinBoxes );
+
+                if ( intersects.length > 0 ) {
+
+                    renderer.domElement.style.cursor = 'pointer';
+                    
+                } else {
+
+                    renderer.domElement.style.cursor = 'auto';
+                }
+
+            }
+            
+            
+
+            function onDocumentMouseDown( event ) {
+
+                event.preventDefault();
+
+                raycaster.setFromCamera( mouse, camera );
+
+                var intersects = raycaster.intersectObjects( thinBoxes );
+
+                if ( intersects.length > 0 ) {
+
+                    selectedObj = intersects[0].object;
+
+                    dragStartPos.copy( intersects[0].point );
+                    
+                    positioningPlane.setFromNormalAndCoplanarPoint( camera.getWorldDirection( positioningPlane.normal ), intersects[0].point );
+
+                    controls.enabled = false; //Stop orbit control
+                    
+                    renderer.domElement.style.cursor = 'move';
+                }
+            }
+            
+            
+
+            function onDocumentMouseCancel( event ) {
+
+                event.preventDefault();
+
+                selectedObj = null;
+                controls.enabled = true; //re-start orbit control
+                
+                renderer.domElement.style.cursor = 'auto';
+
+            } 
+            
+            /////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////////////////////////////
+            
+            
+
+            // animate
+            function animate() {
+                
+              requestAnimationFrame(animate);
+              
+              render();
+            }
+
+            function render() {
+                
+              renderer.render(scene, camera);
+            }
+        }
+        
+        
+        //Check the connectedness of the thin boxes
+        function checkAllConnectedness( index ){
+            
+            if( index < 0 || index >= thinBoxes.length ){
+                
+                alert("Something wrong with the index");
+                return -1;
+            }
+            
+            objConnectedness.fill( false );
+            objConnectedness[index] = true;
+            
+            if (checkObjConnectedness( index ) == false){
+                
+                return 1; //overlap happened
+            } 
+            
+            var connectedNum = 0;
+            
+            for ( var i = 0; i < objConnectedness.length; i++){
+                if ( objConnectedness[i] == true )
+                    connectedNum++;
+            }
+            
+            return connectedNum;
+        }
+        
+        
+        function checkObjConnectedness( i ){
+            
+            for ( var j = 0; j < thinBoxes.length; j++){
+                
+                var temp = 0;
+                
+                if (j != i){
+                    
+                    temp = checkTwoConnectedness(thinBoxes[i], thinBoxes[j]);
+                    
+                    if ( temp == -1){
+                    
+                        //overlapped
+                        return false;
+                    } 
+                    else if( objConnectedness[j] != true && temp == 1 ){
+
+                        objConnectedness[j] = true;
+
+                        if ( checkObjConnectedness(j) == false){
+
+                            return false; //overlapped
+                        }
+                    }
+                }            
+            }
+            
+            return true;
+        }
+        
+        
+        //Check if the two thin boxes are connected
+        function checkTwoConnectedness( obj1, obj2 ){
+            
+            //Apply Matrix4 to get the current coordinations
+            var obj1Pos = new THREE.Vector3( 0, 0, 0 ).applyMatrix4(obj1.matrixWorld);
+            var obj2Pos = new THREE.Vector3( 0, 0, 0 ).applyMatrix4(obj2.matrixWorld);
+            
+            var rb1Pos = new THREE.Vector3(  0.5, -0.5, 0 ).applyMatrix4(obj1.matrixWorld);
+            var rb2Pos = new THREE.Vector3(  0.5, -0.5, 0 ).applyMatrix4(obj2.matrixWorld);
+            
+            var lb1Pos = new THREE.Vector3( -0.5, -0.5, 0 ).applyMatrix4(obj1.matrixWorld);
+            var lb2Pos = new THREE.Vector3( -0.5, -0.5, 0 ).applyMatrix4(obj2.matrixWorld);
+            
+            var lt1Pos = new THREE.Vector3( -0.5,  0.5, 0 ).applyMatrix4(obj1.matrixWorld);
+            var lt2Pos = new THREE.Vector3( -0.5,  0.5, 0 ).applyMatrix4(obj2.matrixWorld);
+                                            
+
+            //Calculate the normal of the two thin boxes
+            var test1Plane = new THREE.Plane().setFromCoplanarPoints(rb1Pos, lb1Pos, lt1Pos);
+            var test2Plane = new THREE.Plane().setFromCoplanarPoints(rb2Pos, lb2Pos, lt2Pos);
+                        
+            if ( Math.abs( test1Plane.normal.dot( test2Plane.normal ) ) > 0.1 ) {  
+                
+                if ( Math.abs( test1Plane.normal.dot( obj1Pos.clone().sub( obj2Pos ) ) ) > 0.1 ){ 
+                    
+                    return 0; //Not connected: two objs are parallel
+                }
+                else if ( obj1Pos.distanceTo( obj2Pos ) < 0.1 ){ 
+                    return -1; //Two objs are overlapped
+                }
+                else if ( obj1Pos.distanceTo( obj2Pos ) < 1.1 ){ //Two objs are in the same plane and connected
+                    
+                    return 1; //Connected in the same plane 
+                }
+                else{
+                    
+                    return 0; //Disconnected in the same plane
+                }
+            }
+            else{
+                
+                if ( obj1Pos.distanceTo( obj2Pos ) < 0.71 ){ //0.5 multiply the square root of 2 
+                    
+                    return 1; //Connected in vertical positions
+                }
+                else{
+                    
+                    return 0; //Disconnected in vertical positions
+                }
+            }
+        }
+        
+    
+    </script>
+
+</body>
+    
+</html>
