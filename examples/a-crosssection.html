@@ -194,15 +194,15 @@
             function point1Change(value){ 
                 
                 //Update planePoint1
-                var arr = value.match(/(-|\+)?\d+/g);
+                var arr = value.match(/(-|\+)?\d+\.?\d*/g);
                 
                 if(arr == null || arr.length != 3){
                     return;
                 }
                 
-                planePoint1.x = 50 * parseInt(arr[0]);
-                planePoint1.y = 50 * parseInt(arr[1]);
-                planePoint1.z = 50 * parseInt(arr[2]);
+                planePoint1.x = 50 * parseFloat(arr[0]);
+                planePoint1.y = 50 * parseFloat(arr[1]);
+                planePoint1.z = 50 * parseFloat(arr[2]);
                 
                 //Update point position and intersectPlane position accordingly
                 posUpdate();
@@ -211,15 +211,15 @@
             function point2Change(value){
                 
                 //Update planePoint2
-                var arr = value.match(/(-|\+)?\d+/g);
+                var arr = value.match(/(-|\+)?\d+\.?\d*/g);
                 
                 if(arr == null || arr.length != 3){
                     return;
                 }
                 
-                planePoint2.x = 50 * parseInt(arr[0]);
-                planePoint2.y = 50 * parseInt(arr[1]);
-                planePoint2.z = 50 * parseInt(arr[2]);
+                planePoint2.x = 50 * parseFloat(arr[0]);
+                planePoint2.y = 50 * parseFloat(arr[1]);
+                planePoint2.z = 50 * parseFloat(arr[2]);
                 
                 //Update point position and intersectPlane position accordingly
                 posUpdate();
@@ -228,15 +228,15 @@
             function point3Change(value){ 
                 
                 //Update planePoint3                
-                var arr = value.match(/(-|\+)?\d+/g);
+                var arr = value.match(/(-|\+)?\d+\.?\d*/g);
                 
                 if(arr == null || arr.length != 3){
                     return;
                 }
                 
-                planePoint3.x = 50 * parseInt(arr[0]);
-                planePoint3.y = 50 * parseInt(arr[1]);
-                planePoint3.z = 50 * parseInt(arr[2]);
+                planePoint3.x = 50 * parseFloat(arr[0]);
+                planePoint3.y = 50 * parseFloat(arr[1]);
+                planePoint3.z = 50 * parseFloat(arr[2]);
                 
                 //Update point position and intersectPlane position accordingly
                 posUpdate();
@@ -415,7 +415,7 @@
                 dot2 = new THREE.Points( dotGeometry, dotMaterial );
                 dot3 = new THREE.Points( dotGeometry, dotMaterial );            
                 
-                var intersectPlaneGeometry = new THREE.PlaneBufferGeometry( 1000, 1000, 20, 20 );
+                var intersectPlaneGeometry = new THREE.PlaneBufferGeometry( 800, 800 );
                 var intersectPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0x00bbbb, side: THREE.DoubleSide, transparent: true, opacity: 0.7} );
                 
                 intersectPlane = new THREE.Mesh( intersectPlaneGeometry, intersectPlaneMaterial );             
