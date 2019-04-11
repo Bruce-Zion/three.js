@@ -53,6 +53,8 @@
             
             var mouseXOnMouseDown = 0;
             var mouseYOnMouseDown = 0;
+            
+            var startDate; //click or touch start date/time
 
 			var cubeGeometry = new THREE.BoxGeometry( 50, 50, 50 );
 			var cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c } );
@@ -189,7 +191,7 @@
 				info.style.top = '10px';
 				info.style.width = '100%';
 				info.style.textAlign = 'center';
-				info.innerHTML = '<strong>click</strong>: add a block, <strong>shift + click</strong>: remove a block, <strong>Drag left/right</strong>: rotate the blocks';
+				info.innerHTML = '<strong>click/touch</strong>: add a block, <strong>long click/touch</strong>: remove a block, <strong>Drag left/right</strong>: rotate the blocks';
 				container.appendChild( info );
 
 				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -327,6 +329,10 @@
                 
                 document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+                
+                document.addEventListener("touchstart", onDocumentTouchStart, false);
+                document.addEventListener("touchend", onDocumentTouchEnd, false);
+                
                 document.addEventListener( 'keydown', onDocumentKeyDown, false );
 				document.addEventListener( 'keyup', onDocumentKeyUp, false );
                 				
@@ -349,17 +355,52 @@
 				
                 mouseXOnMouseDown = event.clientX;
                 mouseYOnMouseDown = event.clientY;
+                startDate = new Date();
 			}
+            
+            
+            function onDocumentTouchStart( event ) {
+				
+                var touches = event.changedTouches;
+                
+                mouseXOnMouseDown = touches[0].pageX;
+                mouseYOnMouseDown = touches[0].pageY;
+                startDate = new Date();
+			}
+            
+            
+            function onDocumentTouchEnd( event ) {
+				
+                var touches = event.changedTouches;
+                
+                var endX = touches[0].pageX;
+                var endY = touches[0].pageY;
+                
+                blockHandling(endX, endY);
+                
+			}
+            
+            
+            function onDocumentMouseUp( event ) {
+                
+                var endX = event.clientX;
+                var endY = event.clientY;
+                
+                blockhandling(endX, endY);
+            }
 
 			
-			function onDocumentMouseUp( event ) {
+			function blockhandling(endX, endY) {
                 
                 //if a dragging event, do nothing
-                if ( event.clientX != mouseXOnMouseDown || event.clientY != mouseYOnMouseDown )
+                if ( endX != mouseXOnMouseDown || endY != mouseYOnMouseDown )
                     return;
+                
+                var endDate = new Date();
+                var pressTime = endDate.getTime() - startDate.getTime(); //in milliseconds
 				
-                mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-                mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+                mouse.x = ( endX / renderer.domElement.clientWidth ) * 2 - 1;
+                mouse.y = - ( endY / renderer.domElement.clientHeight ) * 2 + 1;
 
                 raycaster.setFromCamera( mouse, camera );
 
@@ -369,7 +410,7 @@
 
                     var intersect = intersects[ 0 ];
 
-                    if ( isShiftDown ) {
+                    if ( isShiftDown || pressTime > 500 ) {
 
                         if ( intersect.object != plane ) {
 
